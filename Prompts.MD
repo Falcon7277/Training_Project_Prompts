@@ -22,7 +22,9 @@ Strict Requirements:
 Provide only the clean, compilation-ready xml block. Do not include introductory or explanatory text.
 
 Patient Service Module
+
 Prompt 1: 
+
 Act as a Principal Java Architect. Generate a clean, highly structured Spring Boot 3.x implementation for the Core Architecture Layer of our 'Patient Service' using Java 21, Spring Data JPA, and Lombok. All data models must support an in-memory H2 Database workflow.
 
 Please generate the following files across the appropriate packages under `com.smarthospital.patientservice`:
