@@ -59,3 +59,27 @@ Please generate the following files across the appropriate packages under `com.s
      * Manage mapping data bi-directionally between DTOs and Entities explicitly (or via simple assignment methods).
 
 Generate only clean, compilation-ready code structured by file headers. Do not include chat explanations or introductory prose.
+
+Prompt 2:
+
+Please generate the following files across the appropriate packages under `com.smarthospital.patientservice`:
+
+1. EXCEPTION HANDLING (package: exception)
+   - `ErrorResponse` (Class or Record): fields: timestamp (LocalDateTime), status (int), error (String), message (String).
+   - `GlobalExceptionHandler` (Annotate as @RestControllerAdvice): 
+     * Handle `ResourceNotFoundException` -> return HTTP 404 with ErrorResponse.
+     * Handle `DuplicateResourceException` -> return HTTP 400 with ErrorResponse.
+     * Handle standard JSR-303 validation exceptions (`MethodArgumentNotValidException`) -> gather field errors into a readable message and return HTTP 400.
+     * Handle catch-all generic `Exception` -> return HTTP 500 with a clean "Internal Server Error" message.
+
+2. EXPOSURE LAYER (package: controller)
+   - `PatientController` (Annotate as @RestController, @RequestMapping("/api/v1/patients")): Inject `PatientService` using constructor injection. Implement the following endpoints with proper HTTP status codes:
+     * **POST `/`**: Accept `@Valid @RequestBody PatientRegistrationDTO`. Returns the created `PatientDTO` with HTTP 201 Created.
+     * **GET `/{id}`**: Accept `@PathVariable Long id`. Returns `PatientDTO` with HTTP 200 OK.
+     * **GET `/`**: Accept optional `@RequestParam(required = false) String searchTerm`, `@RequestParam(required = false) PatientStatus status`, and standard Spring Data `@PageableDefault(size = 10, sort = "lastName") Pageable pageable`. Returns `Page<PatientDTO>` with HTTP 200 OK.
+     * **POST `/summary`**: Accept `@RequestBody List<Long> ids`. **Inter-service API** to fetch lightweight summaries. Returns `List<PatientSummaryDTO>` with HTTP 200 OK.
+     * **PUT `/{id}`**: Accept `@PathVariable Long id` and `@Valid @RequestBody PatientUpdateDTO`. Returns the updated `PatientDTO` with HTTP 200 OK.
+     * **PUT `/{id}/medical-profile`**: Accept `@PathVariable Long id` and `@Valid @RequestBody MedicalProfileUpdateDTO`. Returns the updated `MedicalProfileDTO` with HTTP 200 OK.
+     * **DELETE `/{id}`**: Accept `@PathVariable Long id`. Executes soft delete and returns HTTP 204 No Content.
+
+Generate only clean, compilation-ready code structured by clear file headers. Do not include chat explanations or introductory prose.
