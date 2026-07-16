@@ -83,3 +83,30 @@ Please generate the following files across the appropriate packages under `com.s
      * **DELETE `/{id}`**: Accept `@PathVariable Long id`. Executes soft delete and returns HTTP 204 No Content.
 
 Generate only clean, compilation-ready code structured by clear file headers. Do not include chat explanations or introductory prose.
+
+Prompt 3:
+
+Act as a Principal QA and Java Automation Engineer. Generate comprehensive unit and slice tests for our 'Patient Service' using JUnit 5, Mockito, and Spring Boot Test tools. 
+
+Please generate the following two test classes under `src/test/java/com/smarthospital/patientservice`:
+
+1. SERVICE LAYER TESTS (File: `PatientServiceTest.java`)
+   - Use `@ExtendWith(MockitoExtension.class)` to test `PatientServiceImpl`.
+   - Mock the `PatientRepository`.
+   - Implement the following test cases using Assertions (`assertEquals`, `assertThrows`, `assertNotNull`):
+     * `registerPatient_Success`: Verify that a patient is saved successfully when the email is unique.
+     * `registerPatient_ThrowsDuplicateResourceException`: Verify that a DuplicateResourceException is thrown if the email already exists.
+     * `getPatientById_Success`: Verify the correct DTO is returned for a valid existing ID.
+     * `getPatientById_ThrowsResourceNotFoundException`: Verify it throws an exception when the ID doesn't exist.
+     * `deletePatient_Success`: Verify that soft delete modifies the patient status to INACTIVE and saves it.
+
+2. CONTROLLER LAYER TESTS (File: `PatientControllerTest.java`)
+   - Use `@WebMvcTest(PatientController.class)` to perform slice testing on the API layer.
+   - Inject `MockMvc` and mock the `PatientService` using `@MockBean` (or `@MockitoBean` for Spring Boot 3.4+).
+   - Implement the following test cases using MockMvc Fluent APIs (`perform`, `status().is*`, `jsonPath`):
+     * `createPatient_Returns201AndJson`: Validates POST `/api/v1/patients` triggers a 201 Created and maps fields smoothly.
+     * `createPatient_Returns400BadRequest`: Validates JSR-303 input validations fail gracefully when passing an invalid email or missing fields.
+     * `getPatientById_Returns404NotFound`: Mock the service to throw ResourceNotFoundException and verify MockMvc accurately handles the GlobalExceptionHandler mapping to return an HTTP 404 status.
+     * `searchPatients_ReturnsPaginatedList`: Validates GET `/api/v1/patients` processes parameters and returns a Page matrix cleanly.
+
+Generate only clean, compilation-ready test code with clear class boundaries. Do not include chat explanations or introductory prose.
