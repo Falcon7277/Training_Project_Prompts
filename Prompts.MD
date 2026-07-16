@@ -114,3 +114,43 @@ Please generate the following two test classes under `src/test/java/com/smarthos
      * `searchPatients_ReturnsPaginatedList`: Validates GET `/api/v1/patients` processes parameters and returns a Page matrix cleanly.
 
 Generate only clean, compilation-ready test code with clear class boundaries. Do not include chat explanations or introductory prose.
+
+Prompt 4:
+
+
+Act as a Senior Full-Stack Java Developer specializing in Spring Boot, Thymeleaf, and Bootstrap CSS. Generate the complete UI Integration layer for the Patient Management module inside our 'web-portal' service. 
+
+Please generate the following files across the appropriate directories under `com.smarthospital.webportal` and `src/main/resources`:
+
+1. CONFIGURATION & CLIENT (package: client)
+   - Create a lightweight `PatientClient` interface using `@FeignClient(name = "api-gateway")` (or name = "patient-service" if routing directly). 
+   - Mirror the core REST operations from the Patient backend:
+     * GET `/api/v1/patients` with optional searchTerm, status, page, and size parameters.
+     * GET `/api/v1/patients/{id}` to fetch a specific profile.
+     * POST `/api/v1/patients` to register a patient.
+     * DELETE `/api/v1/patients/{id}` for soft deletes.
+
+2. VIEW CONTROLLER (package: controller)
+   - `PatientWebController` (Annotate as @Controller, @RequestMapping("/portal/patients")): Inject `PatientClient`. Implement methods returning Thymeleaf template string paths:
+     * **GET `/`**: Call client to fetch paginated/filtered patients. Add the resulting Page object, current `searchTerm`, and `status` to the Spring UI `Model`. Return `"patients/list"`.
+     * **GET `/register`**: Add an empty `PatientRegistrationDTO` object to the `Model` to bind to the form template. Return `"patients/register"`.
+     * **POST `/register`**: Accept `@ModelAttribute("patient") PatientRegistrationDTO dto`. Call `PatientClient` to save data. On success, return a redirect string: `"redirect:/portal/patients?success=true"`. Catch exceptions gracefully and pass error messages back to the view.
+     * **POST `/delete/{id}`**: Accept `@PathVariable Long id`. Trigger client deletion and return `"redirect:/portal/patients?deleted=true"`.
+
+3. THYMELEAF TEMPLATES (Directory: `src/main/resources/templates/patients/`)
+   - **`list.html`**: A clean dashboard view styled with Bootstrap 5. 
+     * Include a responsive navbar and a search header containing an inline form (input for `searchTerm`, dropdown selector for `status`, and a "Search" button).
+     * A structured data table showing: ID, Full Name, DOB, Phone, Status (styled with dynamic badges: `bg-success` for ACTIVE, `bg-danger` for INACTIVE).
+     * An action column containing a "View" button and a "Delete" button mapping to form POST triggers.
+     * A clean pagination footer component (`Previous` / `Next` links handling page index state).
+   - **`register.html`**: An elegant registration form card layout styled with Bootstrap 5.
+     * Comprehensive form layout capturing First Name, Last Name, Email, Phone, DOB, Gender (Select dropdown), and basic Emergency Contact inputs (Name, Relationship, Phone).
+     * Use native Thymeleaf binding selectors (`th:object`, `th:field`, `th:errors`) to handle form validation states cleanly.
+     * Include "Save Profile" and "Cancel" buttons routing back to the main directory grid.
+
+Generate only compilation-ready, clean Java and HTML source files clearly separated by path indicators. Do not include chat setup explanations or conversational prose.
+
+Doctor Service Module
+
+Prompt 1:
+
