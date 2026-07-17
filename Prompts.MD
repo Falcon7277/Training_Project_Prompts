@@ -149,6 +149,17 @@ Please generate the following files across the appropriate packages under `com.s
 
 Generate only clean, compilation-ready Java files structured explicitly by clear file headers. Do not include chat setup or introductory conversational text.
 
+# ============================================
+# Security - Gateway isolation secret
+# Used by GatewaySecurityFilter (X-Gateway-Token validation)
+# ============================================
+smart.hospital.gateway.secret=smart-hospital-secure-vault-key
+
+# ============================================
+# OAuth2 Resource Server JWT (Temporary Development Override)
+# Disable JWT validation check during early standalone service testing
+# ============================================
+spring.autoconfigure.exclude=org.springframework.boot.autoconfigure.security.oauth2.resource.servlet.OAuth2ResourceServerAutoConfiguration
 
 Prompt 3:
 
