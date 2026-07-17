@@ -25,6 +25,48 @@ Strict Requirements:
 
 Provide only the clean, compilation-ready xml block. Do not include introductory or explanatory text.
 
+# Create the physical sub-folders for every microservice
+mkdir discovery-server api-gateway patient-service doctor-service appointment-service billing-service web-portal
+
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 http://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <!-- Point directly back up to your root parent project config -->
+    <parent>
+        <groupId>com.smarthospital</groupId>
+        <artifactId>smart-hospital-system</artifactId>
+        <version>0.0.1-SNAPSHOT</version>
+        <relativePath>../pom.xml</relativePath>
+    </parent>
+
+    <!-- Change this name for each module (e.g., patient-service, doctor-service) -->
+    <artifactId>patient-service</artifactId>
+
+    <dependencies>
+        <!-- Standard web starter inherited cleanly from parent management -->
+        <dependency>
+            <groupId>org.springframework.boot</groupId>
+            <artifactId>spring-boot-starter-web</artifactId>
+        </dependency>
+        <dependency>
+            <groupId>org.springframework.cloud</groupId>
+            <artifactId>spring-cloud-starter-netflix-eureka-client</artifactId>
+        </dependency>
+    </dependencies>
+
+    <build>
+        <plugins>
+            <plugin>
+                <groupId>org.springframework.boot</groupId>
+                <artifactId>spring-boot-maven-plugin</artifactId>
+            </plugin>
+        </plugins>
+    </build>
+</project>
+
 Patient Service Module
 
 Act as a Principal Enterprise Java Architect. Generate a clean, production-ready Spring Boot 3.x Core Architecture layer for our 'Patient Service' module using Java 21, Spring Data JPA, and Lombok. This module will run inside a standalone PostgreSQL database environment and must be ready to support application-level security filters.
