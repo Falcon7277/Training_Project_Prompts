@@ -195,38 +195,39 @@ Generate only compilation-ready, high-coverage clean Java code clearly grouped b
 
 Prompt 4:
 
+Act as a Principal Full-Stack Java Developer. Generate the Thymeleaf Web Portal exposure layer for our 'Patient Management Dashboard' inside the `web-portal` module using Java 21, Spring Web, Spring Cloud OpenFeign, and Thymeleaf templates. This layer must seamlessly communicate with our self-defending backend 'Patient Service'.
 
-Act as a Senior Full-Stack Java Developer specializing in Spring Boot, Thymeleaf, and Bootstrap CSS. Generate the complete UI Integration layer for the Patient Management module inside our 'web-portal' service. 
+Please generate the following files across the appropriate packages under `com.smarthospital.webportal`:
 
-Please generate the following files across the appropriate directories under `com.smarthospital.webportal` and `src/main/resources`:
+1. SECURITY ORCHESTRATION & FEIGN INTERCEPTOR (package: config)
+   - `FeignGatewaySecurityInterceptor` (Class, implements feign.RequestInterceptor):
+     * Read a configured environment property: `smart.hospital.gateway.secret`.
+     * Override the `apply(RequestTemplate template)` method to automatically inject the HTTP Header `X-Gateway-Token` with the secret value into every outbound Feign client call. This ensures our frontend requests safely pass the backend service's Java firewall checks without modifying client interfaces.
 
-1. CONFIGURATION & CLIENT (package: client)
-   - Create a lightweight `PatientClient` interface using `@FeignClient(name = "api-gateway")` (or name = "patient-service" if routing directly). 
-   - Mirror the core REST operations from the Patient backend:
-     * GET `/api/v1/patients` with optional searchTerm, status, page, and size parameters.
-     * GET `/api/v1/patients/{id}` to fetch a specific profile.
-     * POST `/api/v1/patients` to register a patient.
-     * DELETE `/api/v1/patients/{id}` for soft deletes.
+2. FEIGN CLIENT INTERFACE (package: client)
+   - `PatientFeignClient` (Interface, annotated with @FeignClient(name = "patient-service", url = "${backend.patient-service.url}")):
+     * Map the required backend endpoints:
+       - GET `/api/v1/patients` (with search and pagination parameters)
+       - GET `/api/v1/patients/{id}`
+       - POST `/api/v1/patients` (takes PatientRegistrationDTO)
+       - PUT `/api/v1/patients/{id}/medical-profile` (takes MedicalProfileUpdateDTO)
 
-2. VIEW CONTROLLER (package: controller)
-   - `PatientWebController` (Annotate as @Controller, @RequestMapping("/portal/patients")): Inject `PatientClient`. Implement methods returning Thymeleaf template string paths:
-     * **GET `/`**: Call client to fetch paginated/filtered patients. Add the resulting Page object, current `searchTerm`, and `status` to the Spring UI `Model`. Return `"patients/list"`.
-     * **GET `/register`**: Add an empty `PatientRegistrationDTO` object to the `Model` to bind to the form template. Return `"patients/register"`.
-     * **POST `/register`**: Accept `@ModelAttribute("patient") PatientRegistrationDTO dto`. Call `PatientClient` to save data. On success, return a redirect string: `"redirect:/portal/patients?success=true"`. Catch exceptions gracefully and pass error messages back to the view.
-     * **POST `/delete/{id}`**: Accept `@PathVariable Long id`. Trigger client deletion and return `"redirect:/portal/patients?deleted=true"`.
+3. WEB FRONTEND CONTROLLER (package: controller)
+   - `PatientWebController` (Class, annotated with @Controller, @RequestMapping("/portal/patients")): Inject `PatientFeignClient`.
+     * **GET `/`**: Call the Feign client to fetch a paginated list of patients based on an optional search query. Add the results to the Spring UI `Model` and return the view name `"patients/list"`.
+     * **GET `/register`**: Add an empty `PatientRegistrationDTO` to the model and return view `"patients/register"`.
+     * **POST `/register`**: Accept form submission, trigger the Feign client `POST`, and redirect to `/portal/patients` with a success flash attribute.
+     * **GET `/{id}/medical-profile`**: Fetch details for a specific patient, map them to the model, and return view `"patients/medical-profile"`.
 
-3. THYMELEAF TEMPLATES (Directory: `src/main/resources/templates/patients/`)
-   - **`list.html`**: A clean dashboard view styled with Bootstrap 5. 
-     * Include a responsive navbar and a search header containing an inline form (input for `searchTerm`, dropdown selector for `status`, and a "Search" button).
-     * A structured data table showing: ID, Full Name, DOB, Phone, Status (styled with dynamic badges: `bg-success` for ACTIVE, `bg-danger` for INACTIVE).
-     * An action column containing a "View" button and a "Delete" button mapping to form POST triggers.
-     * A clean pagination footer component (`Previous` / `Next` links handling page index state).
-   - **`register.html`**: An elegant registration form card layout styled with Bootstrap 5.
-     * Comprehensive form layout capturing First Name, Last Name, Email, Phone, DOB, Gender (Select dropdown), and basic Emergency Contact inputs (Name, Relationship, Phone).
-     * Use native Thymeleaf binding selectors (`th:object`, `th:field`, `th:errors`) to handle form validation states cleanly.
-     * Include "Save Profile" and "Cancel" buttons routing back to the main directory grid.
+4. THYMELEAF TEMPLATE (Path: src/main/resources/templates/patients/list.html)
+   - Generate a clean, responsive HTML5 layout using Bootstrap 5 styling. Include a functional search bar targeting the search endpoint, a dynamic text data table displaying patient records via `th:each`, status badge styles matching our ENUMs, and pagination control links ("Next" / "Previous").
 
-Generate only compilation-ready, clean Java and HTML source files clearly separated by path indicators. Do not include chat setup explanations or conversational prose.
+Generate only compilation-ready, high-quality code structured cleanly by file boundaries. Do not include chat introduction prose or conversational summaries.
+
+Also add the following in the application.properties file:
+smart.hospital.gateway.secret=smart-hospital-secure-vault-key
+backend.patient-service.url=http://localhost:8081
+and verify the application.properties file of patient service to see if they both have thesame hardcoded key 
 
 Doctor Service Module
 
