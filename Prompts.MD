@@ -27,66 +27,86 @@ Provide only the clean, compilation-ready xml block. Do not include introductory
 
 Patient Service Module
 
-Prompt 1: 
+Act as a Principal Enterprise Java Architect. Generate a clean, production-ready Spring Boot 3.x Core Architecture layer for our 'Patient Service' module using Java 21, Spring Data JPA, and Lombok. This module will run inside a standalone PostgreSQL database environment and must be ready to support application-level security filters.
 
-Act as a Principal Java Architect. Generate a clean, highly structured Spring Boot 3.x implementation for the Core Architecture Layer of our 'Patient Service' using Java 21, Spring Data JPA, and Lombok. All data models must support an in-memory H2 Database workflow.
+Please generate the following dependencies for our module's `pom.xml` and the core Java files under `com.smarthospital.patientservice`:
 
-Please generate the following files across the appropriate packages under `com.smarthospital.patientservice`:
+1. REQUIRED STARTERS (Include inside the output pom dependencies snippet)
+   - `spring-boot-starter-data-jpa`
+   - `spring-boot-starter-web`
+   - `spring-boot-starter-security` (Required for downstream self-defending authentication filters)
+   - `spring-boot-starter-validation` (JSR-303 annotations)
+   - `org.postgresql:postgresql` (Runtime scope)
 
-1. ENUMS (package: entity)
-   - `Gender`: MALE, FEMALE, OTHER
+2. ENUMS (package: entity)
    - `PatientStatus`: ACTIVE, INACTIVE, DISCHARGED
 
-2. ENTITIES (package: entity)
+3. ENTITIES (package: entity)
+   - `Patient` (Annotate as @Entity, table: "patients"): fields: id (Long, IDENTITY), firstName, lastName, email (unique, nullable=false), phoneNumber, dateOfBirth (LocalDate), status (ENUM String, default ACTIVE), registrationDate (LocalDateTime), emergencyContact (Embedded). Include a 1:1 bidirectional mapping to `MedicalProfile`.
    - `EmergencyContact` (Annotate as @Embeddable): fields: contactName, relationship, contactPhone.
-   - `MedicalProfile` (Annotate as @Entity, table: medical_profiles): fields: id (Long, IDENTITY), patient (OneToOne, LAZY, JoinColumn patient_id), bloodGroup, chronicConditions (TEXT), allergies (TEXT), currentMedications (TEXT).
-   - `Patient` (Annotate as @Entity, table: patients): fields: id (Long, IDENTITY), firstName, lastName, dateOfBirth (LocalDate), gender (ENUM String), email (String, unique), phoneNumber, address, status (ENUM String, default ACTIVE), medicalProfile (OneToOne, mappedBy, cascade ALL, LAZY), emergencyContact (@Embedded). Include a @PrePersist method to enforce default status.
+   - `MedicalProfile` (Annotate as @Entity, table: "medical_profiles"): fields: id (Long, IDENTITY), patient (OneToOne, LAZY, JoinColumn "patient_id"), bloodGroup, allergies, chronicConditions, currentMedications.
 
-3. DATA TRANSFER OBJECTS (package: dto)
-   - `PatientRegistrationDTO`: Core info + embedded fields needed to onboard a patient and clear their initial medical baseline.
-   - `PatientUpdateDTO`: For updating demographics and emergency contact data only.
-   - `MedicalProfileUpdateDTO`: For updating clinical data lists.
-   - `PatientDTO`: Comprehensive data view mapping the full profile.
-   - `PatientSummaryDTO`: Lightweight version containing only id, firstName, lastName, and phoneNumber for rapid cross-service lookups.
+4. DATA TRANSFER OBJECTS (package: dto)
+   - `PatientRegistrationDTO`: Captures onboarding metrics including nested emergency contact inputs.
+   - `PatientUpdateDTO`: For demographic changes.
+   - `MedicalProfileUpdateDTO`: For updating clinical records (allergies, medications).
+   - `PatientDTO`: Complete profile matrix view.
+   - `PatientSummaryDTO`: Lightweight version (id, firstName, lastName, phone, status) for rapid inter-service lookups.
 
-4. REPOSITORY (package: repository)
-   - `PatientRepository`: Extends JpaRepository. Implement a paginated search query using standard query methods or JPQL to filter patients dynamically where:
-     (firstName OR lastName contains searchTerm case-insensitive) OR (phoneNumber equals searchTerm), filtering optionally by PatientStatus. It must accept a Pageable object.
+5. REPOSITORIES (package: repository)
+   - `PatientRepository`: Extends JpaRepository. Include a query method to find patients by a dynamic text search string (matching first name, last name, or email) and status.
+   - `MedicalProfileRepository`: Extends JpaRepository.
 
-5. BUSINESS LOGIC (package: service & service.impl)
-   - Create custom runtime exceptions: `ResourceNotFoundException` and `DuplicateResourceException`.
-   - `PatientService` (Interface): Define full CRUD methods, paginated search retrieval, and bulk summary lookups using lists of IDs.
-   - `PatientServiceImpl` (Class): Implement the interface. Add explicit business rules:
-     * Throw DuplicateResourceException if an email already exists during registration.
-     * Throw ResourceNotFoundException if any target ID does not exist.
-     * Handle soft deletes by setting status to INACTIVE.
-     * Manage mapping data bi-directionally between DTOs and Entities explicitly (or via simple assignment methods).
+6. CUSTOM EXCEPTIONS (package: exception)
+   - `ResourceNotFoundException` (Runtime)
+   - `DuplicateResourceException` (Runtime)
 
-Generate only clean, compilation-ready code structured by file headers. Do not include chat explanations or introductory prose.
+7. BUSINESS LAYER (package: service & service.impl)
+   - `PatientService` (Interface) and `PatientServiceImpl` (Class): Implement standard CRUD operations, profile filtering, separate medical profile updating, and a bulk summary retrieval mapping. Enforce strict database validation:
+     * Check email uniqueness in the PostgreSQL database before executing registrations.
+     * Soft delete patients by shifting the status string to INACTIVE.
+
+Generate only compilation-ready, clean code structured by clear file indicators. Optimize for PostgreSQL dialect paradigms. Do not include chat introductory text.
+
 
 Prompt 2:
 
+Act as a Principal Java Security Architect. Generate a clean, highly structured Spring Boot 3.x implementation for the Exposure and Security Layer of our 'Patient Service' using Java 21, Spring Web, Spring Security, and Lombok. All data operations must target a standalone PostgreSQL configuration.
+
 Please generate the following files across the appropriate packages under `com.smarthospital.patientservice`:
 
-1. EXCEPTION HANDLING (package: exception)
+1. SECURITY & APPLICATION ISOLATION (package: security)
+   - `GatewaySecurityFilter` (Extend OncePerRequestFilter): 
+     * Intercept all incoming HTTP requests before they reach the main controllers.
+     * Check for a custom security header named `X-Gateway-Token`.
+     * If the header is missing, or does not match a configured environment property (`smart.hospital.gateway.secret`), instantly halt execution and write an HTTP 403 Forbidden response with a clean JSON body: {"error": "Forbidden", "message": "Direct access to backend microservices is strictly prohibited."}.
+     * If valid, let the request pass seamlessly into the Spring Security authentication filter chain.
+   - `SecurityConfig` (Class, @Configuration, @EnableWebSecurity):
+     * Configure a `SecurityFilterChain` bean. 
+     * Disable CSRF (stateless REST design).
+     * Add `GatewaySecurityFilter` into the filter chain before the OAuth2 / JWT resource server validation filters.
+     * Enforce `.anyRequest().authenticated()` using standard Spring Boot OAuth2 Resource Server JWT validation rules.
+
+2. EXCEPTION HANDLING (package: exception)
    - `ErrorResponse` (Class or Record): fields: timestamp (LocalDateTime), status (int), error (String), message (String).
    - `GlobalExceptionHandler` (Annotate as @RestControllerAdvice): 
      * Handle `ResourceNotFoundException` -> return HTTP 404 with ErrorResponse.
      * Handle `DuplicateResourceException` -> return HTTP 400 with ErrorResponse.
-     * Handle standard JSR-303 validation exceptions (`MethodArgumentNotValidException`) -> gather field errors into a readable message and return HTTP 400.
-     * Handle catch-all generic `Exception` -> return HTTP 500 with a clean "Internal Server Error" message.
+     * Handle JSR-303 input validations (`MethodArgumentNotValidException`) -> aggregate field errors cleanly and return HTTP 400.
+     * Handle catch-all generic `Exception` -> return HTTP 500.
 
-2. EXPOSURE LAYER (package: controller)
-   - `PatientController` (Annotate as @RestController, @RequestMapping("/api/v1/patients")): Inject `PatientService` using constructor injection. Implement the following endpoints with proper HTTP status codes:
-     * **POST `/`**: Accept `@Valid @RequestBody PatientRegistrationDTO`. Returns the created `PatientDTO` with HTTP 201 Created.
+3. EXPOSURE LAYER (package: controller)
+   - `PatientController` (Annotate as @RestController, @RequestMapping("/api/v1/patients")): Inject `PatientService` using constructor injection. Implement the following endpoints with strict response entities:
+     * **POST `/`**: Accept `@Valid @RequestBody PatientRegistrationDTO`. Returns created `PatientDTO` with HTTP 201 Created.
      * **GET `/{id}`**: Accept `@PathVariable Long id`. Returns `PatientDTO` with HTTP 200 OK.
-     * **GET `/`**: Accept optional `@RequestParam(required = false) String searchTerm`, `@RequestParam(required = false) PatientStatus status`, and standard Spring Data `@PageableDefault(size = 10, sort = "lastName") Pageable pageable`. Returns `Page<PatientDTO>` with HTTP 200 OK.
-     * **POST `/summary`**: Accept `@RequestBody List<Long> ids`. **Inter-service API** to fetch lightweight summaries. Returns `List<PatientSummaryDTO>` with HTTP 200 OK.
-     * **PUT `/{id}`**: Accept `@PathVariable Long id` and `@Valid @RequestBody PatientUpdateDTO`. Returns the updated `PatientDTO` with HTTP 200 OK.
-     * **PUT `/{id}/medical-profile`**: Accept `@PathVariable Long id` and `@Valid @RequestBody MedicalProfileUpdateDTO`. Returns the updated `MedicalProfileDTO` with HTTP 200 OK.
-     * **DELETE `/{id}`**: Accept `@PathVariable Long id`. Executes soft delete and returns HTTP 204 No Content.
+     * **GET `/`**: Accept optional `@RequestParam String searchTerm`, optional `@RequestParam PatientStatus status`, and standard Spring Data `@PageableDefault(size = 10, sort = "lastName") Pageable pageable`. Returns `Page<PatientDTO>` with HTTP 200 OK.
+     * **POST `/summary`**: Inter-service aggregation route. Accept `@RequestBody List<Long> ids`. Returns `List<PatientSummaryDTO>` with HTTP 200 OK.
+     * **PUT `/{id}`**: Accept `@PathVariable Long id` and `@Valid @RequestBody PatientUpdateDTO`. Returns updated `PatientDTO` with HTTP 200 OK.
+     * **PUT `/{id}/medical-profile`**: Accept `@PathVariable Long id` and `@Valid @RequestBody MedicalProfileUpdateDTO`. Returns updated `MedicalProfileDTO` with HTTP 200 OK.
+     * **DELETE `/{id}`**: Executes soft delete and returns HTTP 204 No Content.
 
-Generate only clean, compilation-ready code structured by clear file headers. Do not include chat explanations or introductory prose.
+Generate only clean, compilation-ready Java files structured explicitly by clear file headers. Do not include chat setup or introductory conversational text.
+
 
 Prompt 3:
 
