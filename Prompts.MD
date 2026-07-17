@@ -161,32 +161,34 @@ smart.hospital.gateway.secret=smart-hospital-secure-vault-key
 # ============================================
 spring.autoconfigure.exclude=org.springframework.boot.autoconfigure.security.oauth2.resource.servlet.OAuth2ResourceServerAutoConfiguration
 
-Prompt 3:
+Prompt 3
 
-Act as a Principal QA and Java Automation Engineer. Generate comprehensive unit and slice tests for our 'Patient Service' using JUnit 5, Mockito, and Spring Boot Test tools. 
+Act as a Principal QA and Test Automation Engineer. Generate a clean, comprehensive JUnit 5 and MockMvc testing suite for the 'Patient Service' exposure and business layer using Spring Boot 3.x, Java 21, and Mockito. All tests must be structured cleanly without relying on an active external PostgreSQL instance.
 
-Please generate the following two test classes under `src/test/java/com/smarthospital/patientservice`:
+Please generate the following files across the appropriate packages under `src/test/java/com/smarthospital/patientservice`:
 
-1. SERVICE LAYER TESTS (File: `PatientServiceTest.java`)
-   - Use `@ExtendWith(MockitoExtension.class)` to test `PatientServiceImpl`.
-   - Mock the `PatientRepository`.
-   - Implement the following test cases using Assertions (`assertEquals`, `assertThrows`, `assertNotNull`):
-     * `registerPatient_Success`: Verify that a patient is saved successfully when the email is unique.
-     * `registerPatient_ThrowsDuplicateResourceException`: Verify that a DuplicateResourceException is thrown if the email already exists.
-     * `getPatientById_Success`: Verify the correct DTO is returned for a valid existing ID.
-     * `getPatientById_ThrowsResourceNotFoundException`: Verify it throws an exception when the ID doesn't exist.
-     * `deletePatient_Success`: Verify that soft delete modifies the patient status to INACTIVE and saves it.
+1. BASE TEST SPECIFICATION (package: controller)
+   - `BaseControllerTest` (Abstract Class): 
+     * Configure the core MockMvc context framework.
+     * Use `@SpringBootTest` or `@WebMvcTest`.
+     * Define a constant string: `protected static final String GATEWAY_SECRET = "smart-hospital-secure-vault-key";`
+     * Provide a utility method or a customized `MockMvcRequestPostProcessor` that automatically injects the header `X-Gateway-Token` with the value of `GATEWAY_SECRET` into every outbound test request so it cleanly bypasses the application-level security isolation filter.
 
-2. CONTROLLER LAYER TESTS (File: `PatientControllerTest.java`)
-   - Use `@WebMvcTest(PatientController.class)` to perform slice testing on the API layer.
-   - Inject `MockMvc` and mock the `PatientService` using `@MockBean` (or `@MockitoBean` for Spring Boot 3.4+).
-   - Implement the following test cases using MockMvc Fluent APIs (`perform`, `status().is*`, `jsonPath`):
-     * `createPatient_Returns201AndJson`: Validates POST `/api/v1/patients` triggers a 201 Created and maps fields smoothly.
-     * `createPatient_Returns400BadRequest`: Validates JSR-303 input validations fail gracefully when passing an invalid email or missing fields.
-     * `getPatientById_Returns404NotFound`: Mock the service to throw ResourceNotFoundException and verify MockMvc accurately handles the GlobalExceptionHandler mapping to return an HTTP 404 status.
-     * `searchPatients_ReturnsPaginatedList`: Validates GET `/api/v1/patients` processes parameters and returns a Page matrix cleanly.
+2. CONTROLLER VERIFICATION (package: controller)
+   - `PatientControllerTest` (Class, extends BaseControllerTest): 
+     * Mock the underlying `PatientService` bean using `@MockBean` or `@MockitoBean`.
+     * Write a test case: `registerPatient_Success` -> Perform a POST to `/api/v1/patients` with a valid `PatientRegistrationDTO` payload (including the custom gateway header). Assert HTTP 201 Created and verify that the returned fields match.
+     * Write a test case: `getPatientById_NotFound` -> Mock `patientService.getPatientById(99L)` to throw a `ResourceNotFoundException`. Perform a GET request. Assert HTTP 404 Not Found and verify the JSON error response matches our `ErrorResponse` structure.
+     * Write a test case: `accessDenied_MissingGatewayToken` -> Perform a GET request to `/api/v1/patients/1` WITHOUT providing the `X-Gateway-Token` header. Assert that the `GatewaySecurityFilter` intercepts it and returns HTTP 403 Forbidden with the exact error message string: "Direct access to backend microservices is strictly prohibited."
 
-Generate only clean, compilation-ready test code with clear class boundaries. Do not include chat explanations or introductory prose.
+3. BUSINESS SERVICE VERIFICATION (package: service)
+   - `PatientServiceTest` (Class):
+     * Standard unit tests isolating `PatientServiceImpl` by mocking `PatientRepository` and `MedicalProfileRepository` using standard `@Mock`.
+     * Write a test case: `registerPatient_ThrowsDuplicateException` -> Mock `patientRepository.existsByEmail(...)` to return true. Verify that calling the service layer with a matching email cleanly throws a `DuplicateResourceException` and that `repository.save()` is never executed.
+     * Write a test case: `softDeletePatient_Success` -> Mock finding an active patient, assert that execution shifts their status to `PatientStatus.INACTIVE`, and verify that the updated state is flushed safely to the persistence tier.
+
+Generate only compilation-ready, clean test suites cleanly structured by file headers. Do not include chat introductory prose or explanations.
+
 
 Prompt 4:
 
