@@ -239,3 +239,46 @@ Doctor Service Module
 
 Prompt 1:
 
+Act as a Principal Enterprise Java Architect. Generate a clean, 100% complete, production-ready Spring Boot 3.x Core Architecture layer for our 'Doctor Service' module using Java 21, Spring Data JPA, and Lombok. This module will target a standalone PostgreSQL database environment and must contain full dependencies to support downstream application-level security filters. Do not use code omissions, placeholders, or ellipses (...).
+
+Please generate the following dependencies for our module's `pom.xml` snippet and the complete Java files under `com.smarthospital.doctorservice`:
+
+1. REQUIRED STARTERS (Include inside the output pom dependencies snippet)
+   - `spring-boot-starter-data-jpa`
+   - `spring-boot-starter-web`
+   - `spring-boot-starter-security` (Required for downstream self-defending gateway token filter implementation)
+   - `spring-boot-starter-validation` (JSR-303 annotations)
+   - `org.postgresql:postgresql` (Runtime scope)
+
+2. ENUMS (package: entity)
+   - `DoctorStatus`: ACTIVE, ON_LEAVE, SUSPENDED, RETIRED
+
+3. ENTITIES (package: entity)
+   - `Doctor` (Annotate as @Entity, table: "doctors"): fields: id (Long, IDENTITY), firstName (String), lastName (String), email (String, unique=true, nullable=false), phoneNumber (String), specialization (String), licenseNumber (String, unique=true, nullable=false), status (ENUM String, default ACTIVE), joiningDate (LocalDateTime). Include a 1:1 bidirectional mapping to `DoctorAvailability`.
+   - `DoctorAvailability` (Annotate as @Entity, table: "doctor_availabilities"): fields: id (Long, IDENTITY), doctor (OneToOne, LAZY, JoinColumn "doctor_id"), shiftStart (String, e.g., "09:00"), shiftEnd (String, e.g., "17:00"), maxPatientsPerDay (int).
+
+4. DATA TRANSFER OBJECTS (package: dto)
+   - `DoctorRegistrationDTO`: Fields: firstName, lastName, email, phoneNumber, specialization, licenseNumber, shiftStart, shiftEnd, maxPatientsPerDay.
+   - `DoctorUpdateDTO`: Fields: firstName, lastName, phoneNumber, specialization, status.
+   - `AvailabilityUpdateDTO`: Fields: shiftStart, shiftEnd, maxPatientsPerDay.
+   - `DoctorDTO`: Complete profile matrix view including full ID, availability details, and joining timestamp metrics.
+   - `DoctorSummaryDTO`: Lightweight version containing only fields: id (Long), firstName (String), lastName (String), specialization (String), status (DoctorStatus) for rapid inter-service cross-referencing lookups.
+
+5. REPOSITORIES (package: repository)
+   - `DoctorRepository`: Extends JpaRepository. Include a query method named `findBySearchCriteria` using @Query to find doctors by a dynamic text search string (matching firstName, lastName, or specialization case-insensitively) and status.
+   - `DoctorAvailabilityRepository`: Extends JpaRepository.
+
+6. CUSTOM EXCEPTIONS (package: exception)
+   - `ResourceNotFoundException` (Runtime exception taking a String message argument).
+   - `DuplicateResourceException` (Runtime exception taking a String message argument).
+
+7. BUSINESS LAYER (package: service & service.impl)
+   - `DoctorService` (Interface): Declare methods for registerDoctor, getDoctorById, updateDoctor, updateAvailability, searchDoctors, softDeleteDoctor, and getDoctorSummariesByIds.
+   - `DoctorServiceImpl` (Class implementing DoctorService): Implement full business logic. Enforce strict database rule validation:
+     * Check email and licenseNumber uniqueness in the PostgreSQL database before executing registrations, throwing DuplicateResourceException on collisions.
+     * Soft delete doctors by shifting the status string to SUSPENDED or RETIRED instead of hard database row removal.
+     * Implement the bulk summary retrieval mapping method taking a List<Long> of IDs and returning a List<DoctorSummaryDTO>.
+
+Generate only compilation-ready, 100% complete Java code files clearly grouped by explicit target path indicators. Do not skip any line of logic, do not use placeholders, and do not include conversational introduction summaries.
+
+
