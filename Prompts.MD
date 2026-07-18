@@ -769,4 +769,31 @@ Please generate the following complete Java files under `com.smarthospital.apiga
 
 Generate only raw, compilation-ready, 100% complete Java code strings grouped cleanly by their explicit path indicators. Do not skip any line of code or structural brackets, and do not include conversational responses.
 
+Prompt 3:
+
+Act as a Principal Cloud QA and Automation Engineer. Generate a comprehensive, production-grade test verification suite for our 'API Gateway' module using Spring Boot 3.x, Spring Cloud Gateway Testing Utilities, JUnit 5, and AssertJ. All routing and filter assertions must execute cleanly in a reactive isolation context without requiring the real downstream microservices to be actively running. Do not use code omissions, placeholders, or ellipses (...).
+
+Please generate the following complete Java test files under `src/test/java/com/smarthospital/apigateway`:
+
+1. TARGET PATH: src/test/java/com/smarthospital/apigateway/security/GatewayTokenInjectionFilterTest.java
+   - Full test class utilizing `@SpringBootTest` configured with a random port environment web environment flag.
+   - Inject the reactive test runner engine using the `@Autowired` annotation on a `WebTestClient` instance.
+   - Annotate the class level configuration using `@AutoConfigureWebTestClient` to establish correct reactive pipeline mocking context.
+   - Define a static property matching our system verification key: `private static final String EXPECTED_VAULT_KEY = "smart-hospital-secure-vault-key";`
+   - Test Case 1 (`verifyPatientRoute_AndTokenInjection_Success`):
+     * Construct a mock HTTP request directed at the gateway path: `/api/v1/patients`.
+     * Execute the mock request using `webTestClient.get().uri("/api/v1/patients").exchange()`.
+     * Because the real backend services are not running, the route will drop into an upstream connection failure or a 503/404 handling state, but the filter logic will have completed its mutation block.
+     * Retrieve the recorded request context and write an assertive validation step ensuring that the outbound headers contain an exact match for the key `X-Gateway-Token` pointing to `EXPECTED_VAULT_KEY`.
+   - Test Case 2 (`verifyDoctorRoute_PathMapping_Success`):
+     * Issue a mock request directed towards `/api/v1/doctors/1`.
+     * Assert that the gateway routing engine intercepts the URI path predicate, matches it against the configured mapping for the `doctor-service-route`, and performs the reactive internal transition pipeline cleanly.
+   - Test Case 3 (`verifyRouteHeaders_AreImmutablyStamped`):
+     * Issue a request where a client maliciously injects an arbitrary fake token in the original request headers: `header("X-Gateway-Token", "MALICIOUS_FAKE_TOKEN")`.
+     * Assert that our `GatewayTokenInjectionFilter` runs with highest precedence, overwrites the client input, and forces the outgoing downstream header value to match `EXPECTED_VAULT_KEY` securely.
+
+Generate only raw, compilation-ready, high-coverage clean Java code clearly grouped by explicit path indicators. Do not skip any line of test assertion logic, do not use placeholder ellipses (...), and do not include conversational introductions.
+
+
+
 
