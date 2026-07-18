@@ -718,3 +718,33 @@ Please generate the following complete code files, explicitly indicating their t
 
 Generate only raw, production-grade, un-truncated file outputs structured by their explicit path directives. Do not skip any line of code or HTML tags, do not use placeholder ellipses (...), and do not include conversational introductions.
 
+Api Gateway Module
+
+Prompt 1:
+
+Act as a Principal Cloud Infrastructure Architect. Generate a clean, 100% complete, production-ready Spring Cloud Gateway Core Architecture and Configuration layer for our centralized 'API Gateway' module (`api-gateway`) using Spring Boot 3.x, Spring Cloud 2023.x (or matching latest RELEASE train), Java 21, and Lombok. This module acts as the single entry point for all client requests, routing them securely to downstream microservices. Do not use code omissions, placeholders, or ellipses (...).
+
+Please generate the following dependencies for our module's `pom.xml` snippet, the target properties file, and the complete Java files under `com.smarthospital.apigateway`:
+
+1. REQUIRED STARTERS & DEPENDENCIES (Include inside the output pom dependencies snippet)
+   - `org.springframework.cloud:spring-cloud-starter-gateway` (Reactive Netty-based routing engine)
+   - `spring-boot-starter-validation` (JSR-303 annotations)
+   - Include the dependency management section importing the `org.springframework.cloud:spring-cloud-dependencies` Bill of Materials (BOM) for compatibility with Spring Boot 3.x.
+
+2. CONFIGURATION MIRRORING & ROUTING MATRICES (TARGET PATH: src/main/resources/application.properties)
+   - Generate the complete application properties file for this gateway service.
+   - Configure the server port to run on `8079` to avoid collision with the web portal layer.
+   - Mirror our system secure key by explicitly mapping the property: `smart.hospital.gateway.secret=smart-hospital-secure-vault-key`.
+   - Implement the declarative Spring Cloud Gateway routing rules mapping path predicates to downstream microservice destinations exactly as follows:
+     * Route ID: `patient-service-route` -> Predicate: `/api/v1/patients/**` paths -> Destination URI: `http://localhost:8081`
+     * Route ID: `doctor-service-route` -> Predicate: `/api/v1/doctors/**` paths -> Destination URI: `http://localhost:8082`
+     * Route ID: `appointment-service-route` -> Predicate: `/api/v1/appointments/**` paths -> Destination URI: `http://localhost:8083`
+     * Route ID: `billing-service-route` -> Predicate: `/api/v1/invoices/**` paths -> Destination URI: `http://localhost:8084`
+
+3. APPLICATION BOOTSTRAP ENTRYPOINT (TARGET PATH: src/main/java/com/smarthospital/apigateway/ApiGatewayApplication.java)
+   - Provide the complete, production-grade `@SpringBootApplication` launcher class file.
+   - Include standard main method execution execution paths passing arguments to `SpringApplication.run(ApiGatewayApplication.class, args);`.
+
+Generate only compilation-ready, 100% complete Java and properties file outputs clearly grouped by explicit target path indicators. Do not skip any line of configuration or logic, do not use placeholders, and do not include conversational introduction summaries.
+
+
