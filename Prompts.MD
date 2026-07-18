@@ -442,5 +442,43 @@ Please generate the following dependencies for our module's `pom.xml` snippet, t
 
 Generate only compilation-ready, 100% complete Java and properties file outputs clearly grouped by explicit target path indicators. Do not skip any line of logic, do not use placeholders, and do not include conversational introduction summaries.
 
+Prompt 2:
+
+Act as a Principal Enterprise Java Security Architect. Generate a 100% complete, production-ready REST Exposure and Security Isolation Layer for our 'Appointment Service' module using Spring Boot 3.x, Spring Security, Java 21, and Lombok. This layer must enforce strict application-level perimeter defense by validating gateway security tokens. Do not use code omissions, placeholders, or ellipses (...).
+
+Please generate the following complete Java files under `com.smarthospital.appointmentservice`, explicitly indicating their target file path destinations:
+
+1. TARGET PATH: src/main/java/com/smarthospital/appointmentservice/security/GatewaySecurityFilter.java
+   - Full Java class extending `OncePerRequestFilter`.
+   - Read an internal environment property named `smart.hospital.gateway.secret` using the `@Value` annotation.
+   - Override the `doFilterInternal` method to intercept all incoming HTTP requests.
+   - Extract the HTTP request header: `X-Gateway-Token`.
+   - If the header is missing or does not exactly match the value of the internal gateway secret string, immediately abort execution, short-circuit the request chain, set the HTTP response status to 403 Forbidden, set the Content-Type to "application/json", and write the exact JSON error payload:
+     `{"error": "Forbidden", "message": "Direct access to backend microservices is strictly prohibited."}`
+   - If the token matches perfectly, execute `filterChain.doFilter(request, response)` to allow the request to proceed smoothly.
+
+2. TARGET PATH: src/main/java/com/smarthospital/appointmentservice/security/SecurityConfig.java
+   - Full configuration class annotated with `@Configuration` and `@EnableWebSecurity`.
+   - Inject the custom `GatewaySecurityFilter` bean.
+   - Define a `SecurityFilterChain` bean that disables CSRF, configures session management to `SessionCreationPolicy.STATELESS`, and permits all HTTP traffic to flow through Spring Security's filter chain so our custom `GatewaySecurityFilter` can handle the explicit validation logic. Register `GatewaySecurityFilter` to run before `UsernamePasswordAuthenticationFilter`.
+
+3. TARGET PATH: src/main/java/com/smarthospital/appointmentservice/controller/AppointmentController.java
+   - Full `@RestController` handling requests under `@RequestMapping("/api/v1/appointments")`.
+   - Inject `AppointmentService`.
+   - Implement the following zero-placeholder endpoints with proper JSR-303 `@Valid` annotations:
+     * POST `/`: Schedule a new appointment slot. Takes `AppointmentSchedulingDTO`. Returns HTTP 201 Created and the compiled `AppointmentDTO`.
+     * GET `/{id}`: Fetch individual appointment data records. Returns HTTP 200 OK and the matching `AppointmentDTO`.
+     * PUT `/{id}/status`: Alter appointment lifecycle state (FULFILLED, CANCELLED, NO_SHOW). Takes `AppointmentStatusUpdateDTO`. Returns HTTP 200 OK and the updated `AppointmentDTO`.
+     * GET `/patient/{patientId}`: Retrieve all historical appointment records for a specific patient. Returns HTTP 200 OK containing a `List<AppointmentDTO>`.
+     * GET `/doctor/{doctorId}`: Retrieve schedule metrics for a provider within a specific window. Accepts query params: `start` (String) and `end` (String). Returns HTTP 200 OK containing a `List<AppointmentDTO>`.
+
+4. TARGET PATH: src/main/java/com/smarthospital/appointmentservice/exception/GlobalExceptionHandler.java
+   - Full `@RestControllerAdvice` class containing explicit `@ExceptionHandler` methods.
+   - Map `ResourceNotFoundException` to return HTTP 404 Not Found with a standardized JSON payload structure: `{"status": 404, "error": "Not Found", "message": "..."}`.
+   - Map `AppointmentConflictException` to return HTTP 409 Conflict with a standardized JSON payload structure: `{"status": 409, "error": "Conflict", "message": "..."}`.
+   - Map `MethodArgumentNotValidException` to handle JSR-303 field errors. Loop through all validation errors and return HTTP 400 Bad Request with a clear validation map details field list.
+
+Generate only raw, compilation-ready, 100% complete Java code strings grouped cleanly by their explicit path indicators. Do not skip any line of code or structural brackets, and do not include conversational responses.
+
 
 
