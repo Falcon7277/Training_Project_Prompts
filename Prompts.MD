@@ -900,3 +900,43 @@ Please generate the following complete template file, explicitly indicating its 
 
 Generate only raw, production-grade, un-truncated file outputs structured by their explicit path directives. Do not skip any line of HTML tags or utility class definitions, do not use placeholder ellipses (...), and do not include conversational introductions.
 
+Amazon Q Context Ingestion Prompt:
+
+Act as a Principal Enterprise Software Architect. I am presenting the architectural blueprint of our multi-module 'Smart Hospital Management System' built using Spring Boot 3.x, Java 21, Spring Cloud Gateway, OpenFeign, and pure Thymeleaf (with zero JavaScript). 
+
+Ingest this structural map completely. Do not write any code yet. Simply reply with: "System context ingested successfully. Ready for Prompt 1."
+
+### SYSTEM ARCHITECTURE MATRIX:
+1. com.smarthospital.apigateway (Port: 8079)
+   - Spring Cloud Gateway acts as the single entry point.
+   - Contains a global filter `GatewayTokenInjectionFilter` that automatically stamps all downstream outbound requests with the header: `X-Gateway-Token: smart-hospital-secure-vault-key`.
+
+2. com.smarthospital.patientservice (Port: 8081)
+   - Core CRUD endpoints under `/api/v1/patients`. Uses PostgreSQL schema `smart_hospital_patients`.
+   - Protected by a perimeter security filter validating the `X-Gateway-Token`.
+
+3. com.smarthospital.doctorservice (Port: 8082)
+   - Core CRUD endpoints under `/api/v1/doctors`. Uses PostgreSQL schema `smart_hospital_doctors`.
+   - Protected by a perimeter security filter validating the `X-Gateway-Token`.
+
+4. com.smarthospital.appointmentservice (Port: 8083)
+   - Core CRUD endpoints under `/api/v1/appointments`. Uses PostgreSQL schema `smart_hospital_appointments`.
+   - Protected by a perimeter security filter validating the `X-Gateway-Token`.
+
+5. com.smarthospital.billingservice (Port: 8084)
+   - Core CRUD endpoints under `/api/v1/invoices`. Uses PostgreSQL schema `smart_hospital_billing`.
+   - Protected by a perimeter security filter validating the `X-Gateway-Token`.
+
+6. com.smarthospital.webportal (Port: 8080)
+   - Pure server-side rendered Thymeleaf web frontend. Communicates with backend services via OpenFeign clients targeted directly through the API Gateway (Port 8079).
+   - Core Controller Mappings:
+     * `/portal/admin/dashboard` -> Master Admin overview analytics layout.
+     * `/portal/patients/**` -> Patient profiles grid management.
+     * `/portal/doctors/**` -> Doctor shift rosters.
+     * `/portal/appointments/**` -> Scheduling forms.
+     * `/portal/billing/**` -> Revenue invoice logging statements.
+
+### THE CURRENT GOAL:
+We are now building the final production security hardening layer directly inside the `web-portal` module. We need to implement Spring Security 6.x Form Login and true Role-Based Access Control (RBAC) across three distinct internal user roles (`ROLE_ADMIN`, `ROLE_DOCTOR`, `ROLE_PATIENT`), fix the broken back-navigation hyperlinks across all existing templates to eliminate UI layout dead ends, and dynamically show/hide visual interface components using Thymeleaf Security attributes (`sec:authorize`).
+
+Confirm your understanding of this multi-service network landscape by responding exactly as requested.
