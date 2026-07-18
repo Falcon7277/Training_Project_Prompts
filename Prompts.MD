@@ -352,5 +352,46 @@ Please generate the following test files across the appropriate packages under `
 
 Generate only raw, compilation-ready, high-coverage clean Java code clearly grouped by file header boundaries. Do not skip any line of code, do not use placeholder ellipses (...), and do not include conversational introductions.
 
+Prompt 4:
+
+
+Act as a Principal Full-Stack Engineer and Automation Architect. Generate a zero-manual-intervention, compilation-ready implementation of the pure HTML/CSS Thymeleaf Web Portal layer for our 'Doctor Management System' within the `web-portal` module using Java 21, Spring Cloud OpenFeign, Spring Web, and HTML5/Thymeleaf templates. Strictly prohibit any JavaScript scripts, external JS files, or client-side scripting frameworks. Rely completely on server-side rendering, standard HTTP POST/GET lifecycles, and raw Bootstrap 5 utility classes for layout and visual transitions.
+
+Please generate the following complete code files, explicitly indicating their target file path destinations:
+
+1. TARGET PATH: src/main/java/com/smarthospital/webportal/client/DoctorFeignClient.java
+   - Full client interface annotated with `@FeignClient(name = "doctor-service", url = "${backend.doctor-service.url}")`.
+   - The global `FeignGatewaySecurityInterceptor` already handles header injection, so provide straight client mappings for:
+     * GET `/api/v1/doctors` matching search params (`String searchTerm`, `Pageable pageable`).
+     * GET `/api/v1/doctors/{id}` fetching details.
+     * POST `/api/v1/doctors` sending `DoctorRegistrationDTO`.
+     * PUT `/api/v1/doctors/{id}` sending `DoctorUpdateDTO`.
+     * DELETE `/api/v1/doctors/{id}` passing soft delete requests.
+
+2. TARGET PATH: src/main/java/com/smarthospital/webportal/controller/DoctorWebController.java
+   - Full `@Controller` handling web requests under `@RequestMapping("/portal/doctors")`.
+   - Inject `DoctorFeignClient`.
+   - Map GET `/` to invoke the client, inject paginated doctor data arrays to the Spring UI `Model`, and return the template view name `"doctors/list"`.
+   - Map GET `/register` to supply an empty registration DTO wrapper to the model and return view `"doctors/register"`.
+   - Map POST `/register` to process the form submission, forward data to the Feign client, and redirect using `RedirectAttributes` to append a server-side `successMessage` flash attribute back to `/portal/doctors`.
+   - Map POST `/{id}/delete` to trigger the backend soft-delete lifecycle via Feign and redirect back to the main list with a success message banner.
+
+3. TARGET PATH: src/main/resources/templates/doctors/list.html
+   - Provide the complete, production-ready HTML5 template with Bootstrap 5 and Bootstrap Icons integration. Zero `<script>` tags allowed.
+   - Core Navigation Panel: Link the 'Patients' button to the working `/portal/patients` route. For the rest of the layout navigation (Appointments, Billing, etc.), explicitly implement safe dead links using `th:href="@{#}"` annotated as `disabled` to prevent compilation failures while keeping the frontend structure completely un-truncated.
+   - Implement a functional search form using standard HTML form inputs linking back to `/portal/doctors` via GET.
+   - Render a data table displaying medical provider profiles using `th:each`, with status badge highlights using native Bootstrap alert/badge classes (ACTIVE: success-subtle, ON_LEAVE: warning-subtle, SUSPENDED: danger-subtle, RETIRED: secondary-subtle).
+   - Add native HTML/CSS notification alert banners matching `${successMessage}` that display based entirely on server-side compilation (`th:if`).
+   - Add an empty database handler checking `th:if="${#lists.isEmpty(doctors)}"`.
+   - Implement server-side pagination footer navigation using native HTML `<a>` links that pass explicit `page` and `size` parameters back to the URL.
+
+4. TARGET PATH: src/main/resources/templates/doctors/register.html
+   - Provide the complete HTML5 registration form template using Bootstrap 5 layout grids. Zero Javascript code permitted for form handling or validation submission.
+   - Map a form component with `th:action="@{/portal/doctors/register}"` and `th:object="${doctorRegistrationDTO}"` using method="POST".
+   - Include complete structural text inputs for `firstName`, `lastName`, `email`, `phoneNumber`, `specialization`, `licenseNumber`, `shiftStart` (type="time"), `shiftEnd` (type="time"), and `maxPatientsPerDay` (type="number").
+   - Include a cancel hyperlink (`<a>` tag) returning safely back to `/portal/doctors`.
+
+Generate only raw, production-grade, un-truncated file outputs structured by their explicit path directives. Do not skip any line of code or HTML tags, do not use placeholder ellipses (...), and do not include conversational introductions.
+
 
 
