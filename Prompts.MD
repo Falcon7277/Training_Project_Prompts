@@ -720,6 +720,8 @@ Generate only raw, production-grade, un-truncated file outputs structured by the
 
 Api Gateway Module
 
+Phase 1
+
 Prompt 1:
 
 Act as a Principal Cloud Infrastructure Architect. Generate a clean, 100% complete, production-ready Spring Cloud Gateway Core Architecture and Configuration layer for our centralized 'API Gateway' module (`api-gateway`) using Spring Boot 3.x, Spring Cloud 2023.x (or matching latest RELEASE train), Java 21, and Lombok. This module acts as the single entry point for all client requests, routing them securely to downstream microservices. Do not use code omissions, placeholders, or ellipses (...).
@@ -831,6 +833,42 @@ Please generate the following updated files, explicitly indicating their target 
 
 Generate only raw, compilation-ready, 100% complete Java and properties code blocks grouped cleanly by their explicit path indicators. Do not skip any line of code or structural configurations, and do not include conversational introductions.
 
+Phase 2 
 
+Prompt 5:
+
+Act as a Principal Full-Stack Automation Architect. Generate a zero-manual-intervention, compilation-ready Administrative Aggregator and Controller layer for the 'Web Portal' module (`web-portal`) using Java 21, Spring Boot 3.x, and Spring Web. This layer must pull metrics from the Patient, Doctor, Appointment, and Billing Feign clients to build a unified administrative dataset for cross-service analytics. Do not use code omissions, placeholders, or ellipses (...).
+
+Please generate the following complete files under their explicit target path destinations:
+
+1. TARGET PATH: src/main/java/com/smarthospital/webportal/dto/HospitalStatsSummaryDTO.java
+   - Full Java data class annotated with Lombok `@Data`, `@NoArgsConstructor`, and `@AllArgsConstructor`.
+   - Fields to represent cross-service metrics:
+     * `totalPatients` (long)
+     * `activeDoctors` (long)
+     * `scheduledAppointments` (long)
+     * `cancelledAppointments` (long)
+     * `totalRevenue` (java.math.BigDecimal)
+     * `unpaidInvoicesCount` (long)
+
+2. TARGET PATH: src/main/java/com/smarthospital/webportal/controller/AdminDashboardController.java
+   - Full Java controller class annotated with `@Controller` and `@RequestMapping("/portal/admin")`.
+   - Inject the following existing client components via constructor dependency injection:
+     * `PatientFeignClient`
+     * `DoctorFeignClient`
+     * `AppointmentFeignClient`
+     * `BillingFeignClient`
+   - Map a GET request to the root path `/dashboard`.
+   - Inside the method handler, invoke calls to the downstream microservices via the Feign clients to aggregate data arrays or metrics (e.g., retrieving lists or paginated lists of patients, doctors, appointments, and invoices).
+   - Compute aggregate statistical counts programmatically using Java Stream maps or collection filters:
+     * Count total elements from the patient client query to populate `totalPatients`.
+     * Filter the doctor collection by status matching `ACTIVE` to count `activeDoctors`.
+     * Count appointment records matching status `SCHEDULED` and `CANCELLED`.
+     * Sum the `totalAmount` of all invoices to calculate global `totalRevenue` and count records matching status `UNPAID`.
+   - Construct a new instance of `HospitalStatsSummaryDTO` populated with these computed aggregates.
+   - Push the compiled `HospitalStatsSummaryDTO` object into the Spring UI `Model` context using the attribute key name `"stats"`.
+   - Return the explicit string template view target path: `"admin/dashboard"`.
+
+Generate only raw, compilation-ready, 100% complete Java code files structured by their explicit path directives. Do not skip any line of logic or structural brackets, and do not include conversational introductions.
 
 
