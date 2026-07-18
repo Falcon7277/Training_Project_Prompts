@@ -747,4 +747,26 @@ Please generate the following dependencies for our module's `pom.xml` snippet, t
 
 Generate only compilation-ready, 100% complete Java and properties file outputs clearly grouped by explicit target path indicators. Do not skip any line of configuration or logic, do not use placeholders, and do not include conversational introduction summaries.
 
+Prompt 2:
+
+Act as a Principal Enterprise Cloud Security Architect. Generate a 100% complete, production-ready Centralized Token Injection Filter layer for our 'API Gateway' module (`api-gateway`) using Spring Cloud Gateway, Java 21, and Lombok. This layer must intercept every incoming HTTP request passing through the gateway routes and inject our internal secret gateway perimeter verification token. Do not use code omissions, placeholders, or ellipses (...).
+
+Please generate the following complete Java files under `com.smarthospital.apigateway`, explicitly indicating their target file path destinations:
+
+1. TARGET PATH: src/main/java/com/smarthospital/apigateway/security/GatewayTokenInjectionFilter.java
+   - Full Java class implementing `org.springframework.cloud.gateway.filter.GlobalFilter` and `org.springframework.core.Ordered`.
+   - Read the internal environment property named `smart.hospital.gateway.secret` using the `@Value` annotation.
+   - Override the `filter(ServerWebExchange exchange, GatewayFilterChain chain)` method.
+   - Utilize a reactive mutations builder loop to cleanly attach our required token header to the outbound request traveling to downstream services:
+     `ServerHttpRequest mutatedRequest = exchange.getRequest().mutate().header("X-Gateway-Token", gatewaySecret).build();`
+     `ServerWebExchange mutatedExchange = exchange.mutate().request(mutatedRequest).build();`
+   - Return the chain execution passing the mutated exchange context: `return chain.filter(mutatedExchange);`
+   - Override the `getOrder()` method to return `Ordered.HIGHEST_PRECEDENCE` (or `-1`), ensuring this security transformation occurs before any other routing mechanics execute.
+
+2. TARGET PATH: src/main/java/com/smarthospital/apigateway/config/SecurityGatewayConfig.java
+   - Full configuration class annotated with `@Configuration`.
+   - Register the `GatewayTokenInjectionFilter` bean explicitly to ensure dependency injection auto-wiring triggers on gateway startup.
+
+Generate only raw, compilation-ready, 100% complete Java code strings grouped cleanly by their explicit path indicators. Do not skip any line of code or structural brackets, and do not include conversational responses.
+
 
