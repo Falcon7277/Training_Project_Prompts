@@ -871,4 +871,32 @@ Please generate the following complete files under their explicit target path de
 
 Generate only raw, compilation-ready, 100% complete Java code files structured by their explicit path directives. Do not skip any line of logic or structural brackets, and do not include conversational introductions.
 
+Prompt 6:
+
+
+Act as a Principal Full-Stack Engineer and Automation Architect. Generate a zero-manual-intervention, compilation-ready implementation of the pure HTML/CSS Thymeleaf Master Admin Overview Dashboard layout template within the `web-portal` module under `src/main/resources/templates/admin/dashboard.html`. Strictly prohibit any JavaScript scripts, external JS files, or client-side scripting frameworks. Rely completely on server-side rendering, standard HTTP POST/GET lifecycles, and raw Bootstrap 5 utility classes for layout components, card blocks, and data grids.
+
+Please generate the following complete template file, explicitly indicating its target file path destination:
+
+1. TARGET PATH: src/main/resources/templates/admin/dashboard.html
+   - Provide the complete, production-ready HTML5 template with Bootstrap 5 and Bootstrap Icons integration. Zero `<script>` tags allowed anywhere in the code.
+   - Core Navigation Panel: Fully operational, un-truncated sidebar or navbar header layout linking the active modules:
+     * 'Overview/Dashboard' links to `/portal/admin/dashboard` (set with the active visual class marker).
+     * 'Patients' links to `/portal/patients`.
+     * 'Doctors' links to `/portal/doctors`.
+     * 'Appointments' links to `/portal/appointments`.
+     * 'Billing & Invoices' links to `/portal/billing`.
+     * Any downstream un-designed infrastructure paths should be safely mapped via `th:href="@{#}"` marked as `disabled`.
+   - Metrics Analytics Grid: Implement a responsive 4-column metric matrix card grid displaying the aggregate values injected from the `HospitalStatsSummaryDTO` (`stats` context object):
+     * Card 1 (Total Patients): Uses a primary styling theme, displaying text mapping `${stats.totalPatients}` accompanied by a `bi-people` icon.
+     * Card 2 (Active Medical Staff): Uses a success styling theme, displaying text mapping `${stats.activeDoctors}` accompanied by a `bi-person-badge` icon.
+     * Card 3 (Appointment Load Metrics): Uses an info styling theme, displaying text summaries splitting scheduled vs cancelled counts using explicit Thymeleaf expressions: `Scheduled: ${stats.scheduledAppointments}` and `Cancelled: ${stats.cancelledAppointments}`.
+     * Card 4 (Financial Revenue Balance): Uses a warning/gold styling theme, displaying compiled totals mapping `Total: $${stats.totalRevenue}` and the secondary tracking line showing `Unpaid Invoices: ${stats.unpaidInvoicesCount}`.
+   - Quick Action Portal Control Console: Add a clean visual card grid containing direct navigation shortcuts to common cross-service entry forms, implemented using pure HTML hyperlinks stylized as utility control buttons:
+     * Button 1: "Onboard New Patient" links safely to `/portal/patients/register` with class `btn btn-outline-primary`.
+     * Button 2: "Register New Doctor" links safely to `/portal/doctors/register` with class `btn btn-outline-success`.
+     * Button 3: "Schedule Appointment Slot" links safely to `/portal/appointments/schedule` with class `btn btn-outline-info`.
+     * Button 4: "Generate Financial Statement" links safely to `/portal/billing/generate` with class `btn btn-outline-warning`.
+
+Generate only raw, production-grade, un-truncated file outputs structured by their explicit path directives. Do not skip any line of HTML tags or utility class definitions, do not use placeholder ellipses (...), and do not include conversational introductions.
 
