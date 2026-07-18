@@ -393,5 +393,54 @@ Please generate the following complete code files, explicitly indicating their t
 
 Generate only raw, production-grade, un-truncated file outputs structured by their explicit path directives. Do not skip any line of code or HTML tags, do not use placeholder ellipses (...), and do not include conversational introductions.
 
+Appointment Service Module
+
+Prompt 1:
+
+Act as a Principal Enterprise Java Architect. Generate a clean, 100% complete, production-ready Spring Boot 3.x Core Architecture and Configuration layer for our 'Appointment Service' module using Java 21, Spring Data JPA, and Lombok. This module will target a standalone PostgreSQL database environment and must contain full configurations to support downstream application-level security filters. Do not use code omissions, placeholders, or ellipses (...).
+
+Please generate the following dependencies for our module's `pom.xml` snippet, the target properties file, and the complete Java files under `com.smarthospital.appointmentservice`:
+
+1. REQUIRED STARTERS (Include inside the output pom dependencies snippet)
+   - `spring-boot-starter-data-jpa`
+   - `spring-boot-starter-web`
+   - `spring-boot-starter-security` (Required for downstream self-defending gateway token filter implementation)
+   - `spring-boot-starter-validation` (JSR-303 annotations)
+   - `org.postgresql:postgresql` (Runtime scope)
+
+2. CONFIGURATION MIRRORING (TARGET PATH: src/main/resources/application.properties)
+   - Generate the complete application properties file for this service. 
+   - Mirror the exact structure used in previous services: include the `spring.autoconfigure.exclude` string for `OAuth2ResourceServerAutoConfiguration` to allow standalone testing, and include the exact `smart.hospital.gateway.secret=smart-hospital-secure-vault-key` property mapping.
+   - Configure the server port to `8083`.
+   - Set up the Spring Data JPA connection string targeting PostgreSQL, explicitly changing only the database name segment to `smart_hospital_appointments`.
+
+3. ENUMS (package: entity)
+   - `AppointmentStatus`: SCHEDULED, FULFILLED, CANCELLED, NO_SHOW
+
+4. ENTITIES (package: entity)
+   - `Appointment` (Annotate as @Entity, table: "appointments"): fields: id (Long, IDENTITY), patientId (Long, for cross-service tracking), doctorId (Long, for cross-service tracking), appointmentDateTime (LocalDateTime), reasonForVisit (String), status (ENUM String, default SCHEDULED), notes (String), createdAt (LocalDateTime).
+
+5. DATA TRANSFER OBJECTS (package: dto)
+   - `AppointmentSchedulingDTO`: Fields: patientId, doctorId, appointmentDateTime, reasonForVisit, notes.
+   - `AppointmentStatusUpdateDTO`: Fields: status, notes.
+   - `AppointmentDTO`: Complete execution matrix view including full ID, patientId, doctorId, datetime, reason, status, notes, and creation timestamp metrics.
+
+6. REPOSITORIES (package: repository)
+   - `AppointmentRepository`: Extends JpaRepository. Include query methods:
+     * `findByPatientId`: Find all records for a specific patient.
+     * `findByDoctorIdAndAppointmentDateTimeBetween`: Find all appointments for a doctor within a specific date range window.
+
+7. CUSTOM EXCEPTIONS (package: exception)
+   - `ResourceNotFoundException` (Runtime exception taking a String message argument).
+   - `AppointmentConflictException` (Runtime exception taking a String message argument for double-booking validations).
+
+8. BUSINESS LAYER (package: service & service.impl)
+   - `AppointmentService` (Interface): Declare methods for scheduleAppointment, getAppointmentById, updateAppointmentStatus, getAppointmentsByPatient, getAppointmentsByDoctorAndDate.
+   - `AppointmentServiceImpl` (Class implementing AppointmentService): Implement full business logic. Enforce strict database rule validation:
+     * Check if the doctor already has an existing appointment matching the exact same `appointmentDateTime` timestamp, throwing an `AppointmentConflictException` if a scheduling overlap occurs.
+     * Implement soft cancellation by shifting the status string to CANCELLED via the status update method instead of hard database row removal.
+
+Generate only compilation-ready, 100% complete Java and properties file outputs clearly grouped by explicit target path indicators. Do not skip any line of logic, do not use placeholders, and do not include conversational introduction summaries.
+
 
 
