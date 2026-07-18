@@ -985,3 +985,38 @@ Please generate the following complete Java files, explicitly indicating their t
      * Default fallback if no role matches should gracefully redirect back to `/login?error`.
 
 Generate only raw, compilation-ready, 100% complete Java code strings grouped cleanly by their explicit path indicators. Do not skip any line of code, loops, or configurations, and do not include conversational introductions.
+
+Prompt 2:
+
+Act as a Principal Full-Stack Engineer and UI/UX Automation Architect. Generate a zero-manual-intervention, 100% complete, and compilation-ready UI Patch for the 'Web Portal' module (`web-portal`) using HTML5, Thymeleaf, Thymeleaf Extras Spring Security 6, and Bootstrap 5 utility styles. This patch must build a secure, server-side login view, establish a dynamic role-aware navigation header fragment, and eliminate all navigation dead ends or UI traps across our dashboards by inserting explicit back-navigation pathways. Strictly prohibit any JavaScript scripts or client-side validation frameworks.
+
+Please generate the following complete template files, explicitly indicating their target path destinations:
+
+1. TARGET PATH: src/main/resources/templates/security/login.html
+   - Full HTML5 login template utilizing native Bootstrap 5 visual card alignments and form utility layouts. Zero Javascript allowed.
+   - Form container mapped with `th:action="@{/login}"` using method="POST".
+   - Input text fields with exact property attributes `name="username"` and `name="password"`.
+   - Implement clean, server-side conditional logic banners using `th:if`:
+     * If the login parameter resolves to an error (`th:if="${param.error}"`), display a warning alert banner: "Invalid credentials. Please try again."
+     * If the login parameter resolves to a logout state (`th:if="${param.logout}"`), display a success alert banner: "You have been successfully logged out."
+   - Stylized form submission action button labeled "Sign In".
+
+2. TARGET PATH: src/main/resources/templates/fragments/navigation.html
+   - Full Thymeleaf layout fragment wrapper named `th:fragment="navbar"`.
+   - Incorporate the brand identity title "Smart Hospital Portal" linking cleanly back to the unified security home router `/portal/home`.
+   - Use Thymeleaf Security attributes (`sec:authorize`) to display structural layout items dynamically matching a user's logged-in identity group:
+     * 'Overview/Dashboard': Wrapped in `sec:authorize="hasRole('ADMIN')"`, linking to `/portal/admin/dashboard`.
+     * 'Patients': Wrapped in `sec:authorize="hasAnyRole('ADMIN','DOCTOR')"`, linking to `/portal/patients`.
+     * 'Doctors': Wrapped in `sec:authorize="hasRole('ADMIN')"`, linking to `/portal/doctors`.
+     * 'Appointments': Accessible to all authenticated users (`sec:authorize="isAuthenticated()"`), linking to `/portal/appointments`.
+     * 'Billing & Invoices': Wrapped in `sec:authorize="hasAnyRole('ADMIN','DOCTOR')"`, linking to `/portal/billing`.
+   - Completely remove the previous placeholder stubs for 'Reports', 'Audit Logs', and 'Analytics' to avoid dead features.
+   - Profile Section: Display the logged-in user's username using `<span sec:authentication="name"></span>`.
+   - Scriptless Logout Trigger: Implement a clean inline HTML `<form th:action="@{/logout}" method="POST" class="d-inline">` containing a single submit button stylized as a sleek link or button labeled "Logout" to perfectly satisfy Spring Security 6's stateful POST logout requirements without JavaScript.
+
+3. TARGET PATH: src/main/resources/templates/fragments/breadcrumbs.html
+   - Provide a reusable back-navigation breadcrumb fragment named `th:fragment="header(title, backUrl)"`.
+   - Render a layout header containing the dynamic section `${title}` text.
+   - Include an explicit "Return to Main Hub" navigation hyperlink element structured as `<a th:href="@{${backUrl}}" class="btn btn-sm btn-outline-secondary mb-3"><i class="bi bi-arrow-left"></i> Back to Hub</a>` ensuring users can always drop backward out of specialized sub-modules instead of becoming trapped.
+
+Generate only raw, production-grade, un-truncated file outputs structured by their explicit path directives. Do not skip any lines of layout components, HTML structural elements, or Thymeleaf expressions, and do not include conversational introductions.
