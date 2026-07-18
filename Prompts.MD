@@ -794,6 +794,43 @@ Please generate the following complete Java test files under `src/test/java/com/
 
 Generate only raw, compilation-ready, high-coverage clean Java code clearly grouped by explicit path indicators. Do not skip any line of test assertion logic, do not use placeholder ellipses (...), and do not include conversational introductions.
 
+Prompt 4:
+
+Act as a Principal Full-Stack Automation Architect. Generate a zero-manual-intervention, compilation-ready configuration patch for the 'Web Portal' module (`web-portal`) using Java 21, Spring Boot 3.x, and Spring Cloud OpenFeign. This patch will re-route all existing cross-service Feign communication networks away from specific, direct microservice ports and route them cleanly through our unified API Gateway instance. Do not use code omissions, placeholders, or ellipses (...).
+
+Please generate the following updated files, explicitly indicating their target file path destinations:
+
+1. TARGET PATH: src/main/resources/application.properties
+   - Provide the complete, updated application properties file for the `web-portal` module.
+   - Maintain the existing server configuration running on port `8080`.
+   - Update the backend service URL target strings. Replace individual port URLs with target routes pointing directly to the centralized API Gateway port (`8079`):
+     * `backend.patient-service.url=http://localhost:8079`
+     * `backend.doctor-service.url=http://localhost:8079`
+     * `backend.appointment-service.url=http://localhost:8079`
+     * `backend.billing-service.url=http://localhost:8079`
+
+2. TARGET PATH: src/main/java/com/smarthospital/webportal/client/PatientFeignClient.java
+   - Full, un-truncated client interface file.
+   - Annotate with `@FeignClient(name = "patient-service", url = "${backend.patient-service.url}")`.
+   - Re-expose all required operational endpoint contract paths matching the downstream `/api/v1/patients/**` paths.
+
+3. TARGET PATH: src/main/java/com/smarthospital/webportal/client/DoctorFeignClient.java
+   - Full, un-truncated client interface file.
+   - Annotate with `@FeignClient(name = "doctor-service", url = "${backend.doctor-service.url}")`.
+   - Re-expose all required operational endpoint contract paths matching the downstream `/api/v1/doctors/**` paths.
+
+4. TARGET PATH: src/main/java/com/smarthospital/webportal/client/AppointmentFeignClient.java
+   - Full, un-truncated client interface file.
+   - Annotate with `@FeignClient(name = "appointment-service", url = "${backend.appointment-service.url}")`.
+   - Re-expose all required operational endpoint contract paths matching the downstream `/api/v1/appointments/**` paths.
+
+5. TARGET PATH: src/main/java/com/smarthospital/webportal/client/BillingFeignClient.java
+   - Full, un-truncated client interface file.
+   - Annotate with `@FeignClient(name = "billing-service", url = "${backend.billing-service.url}")`.
+   - Re-expose all required operational endpoint contract paths matching the downstream `/api/v1/invoices/**` paths.
+
+Generate only raw, compilation-ready, 100% complete Java and properties code blocks grouped cleanly by their explicit path indicators. Do not skip any line of code or structural configurations, and do not include conversational introductions.
+
 
 
 
