@@ -1056,3 +1056,42 @@ Please generate the complete source code for the following updated template file
    - Maintain the financial ledger statement data grid loops displaying invoice rows and payment statuses.
 
 Generate only raw, production-grade, un-truncated file outputs structured by their explicit path directives. Do not skip any line of HTML components, data loops, or layout configurations, and do not include conversational introductions.
+
+Prompt 4:
+
+Act as a Principal Full-Stack Engineer and UI/UX Automation Architect. Generate a zero-manual-intervention, 100% complete, and compilation-ready form redirection patch for the 'Web Portal' module (`web-portal`) using Java 21, Spring Boot 3.x, HTML5, and Thymeleaf. This patch must update all Web Controller action methods and creation form templates to ensure that form submissions and "Cancel" hyper-links cleanly redirect users back to their respective module management dashboards instead of trapping them. Do not use code omissions, placeholders, or ellipses (...).
+
+Please generate the complete source code for the following updated Java classes and template files, explicitly indicating their target path destinations:
+
+1. TARGET PATH: src/main/java/com/smarthospital/webportal/controller/PatientWebController.java
+   - Full, un-truncated Java controller class.
+   - Update the GET `/register` mapping to supply an empty `PatientRegistrationDTO` wrapper to the model.
+   - Update the POST `/register` form action mapping: after successful downstream execution via the Feign client, cleanly return the server-side redirect string: `redirect:/portal/patients`.
+   - Ensure explicit runtime exception catch blocks also redirect or render safely with error flash strings back to the patient overview.
+
+2. TARGET PATH: src/main/java/com/smarthospital/webportal/controller/DoctorWebController.java
+   - Full, un-truncated Java controller class.
+   - Update the POST `/register` method to process doctor onboarding, and upon successful validation, execute a clean redirect loop returning directly back to `redirect:/portal/doctors`.
+
+3. TARGET PATH: src/main/java/com/smarthospital/webportal/controller/AppointmentWebController.java
+   - Full, un-truncated Java controller class.
+   - Update the POST `/schedule` processing method: once slot booking is confirmed via the appointment Feign client, redirect the request flow cleanly back to `redirect:/portal/appointments`.
+
+4. TARGET PATH: src/main/resources/templates/patients/register.html
+   - Full, un-truncated Patient Registration Form layout template using Bootstrap 5. Zero JavaScript allowed.
+   - Update the "Back to List" hyper-link element at the top corner to point to explicit server-side paths: `th:href="@{/portal/patients}"`.
+   - Update the "Cancel" button anchor layout component at the bottom of the form to act as a clean escape route pointing exactly to: `th:href="@{/portal/patients}"` with classes `btn btn-secondary`.
+
+5. TARGET PATH: src/main/resources/templates/doctors/register.html
+   - Full, un-truncated Doctor Registration Form layout template using Bootstrap 5.
+   - Update the top "Back to Doctors" anchor and bottom "Cancel" button anchor elements to both cleanly point to: `th:href="@{/portal/doctors}"`.
+
+6. TARGET PATH: src/main/resources/templates/appointments/schedule.html
+   - Full, un-truncated Appointment Scheduling Form layout template using Bootstrap 5.
+   - Update the top "Back to Appointments" hyperlink and the bottom form "Cancel" button layout anchor to both map cleanly to: `th:href="@{/portal/appointments}"`.
+
+7. TARGET PATH: src/main/resources/templates/billing/generate.html
+   - Full, un-truncated Invoice Generation Form layout template using Bootstrap 5.
+   - Update the top "Back to Ledger" hyperlink and the bottom form "Cancel" button layout anchor to both map cleanly to: `th:href="@{/portal/billing}"`.
+
+Generate only raw, production-grade, un-truncated file outputs structured by their explicit path directives. Do not skip any line of code or structural configuration tags, and do not include conversational introductions.
