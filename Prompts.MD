@@ -640,5 +640,36 @@ Please generate the following complete Java files under `com.smarthospital.billi
 
 Generate only raw, compilation-ready, 100% complete Java code strings grouped cleanly by their explicit path indicators. Do not skip any line of code or structural brackets, and do not include conversational responses.
 
+Prompt 3:
+
+Act as a Principal QA and Test Automation Engineer. Generate a comprehensive, production-grade JUnit 5 and MockMvc testing suite for the exposure, validation, and business logic layers of our 'Billing Service' module using Spring Boot 3.x, Java 21, Mockito, and AssertJ. All tests must execute quickly and cleanly in isolation without requiring an active PostgreSQL instance. Do not use code omissions, placeholders, or ellipses (...).
+
+Please generate the following test files across the appropriate packages under `src/test/java/com/smarthospital/billingservice`:
+
+1. BASE TEST SPECIFICATION (package: controller)
+   - `BaseControllerTest` (Abstract Class): 
+     * Initialize the core MockMvc context framework using `@WebMvcTest(InvoiceController.class)`.
+     * Define the security tracking property: `protected static final String GATEWAY_SECRET = "smart-hospital-secure-vault-key";`
+     * Implement a reusable MockMvc request builder helper (or RequestPostProcessor) that automatically injects the custom HTTP header `X-Gateway-Token` with the value of `GATEWAY_SECRET` into test executions to satisfy our application-level Java security isolation rules.
+
+2. CONTROLLER EXPOSURE & EDGE-CASE VERIFICATION (package: controller)
+   - `InvoiceControllerTest` (Class, extends BaseControllerTest): 
+     * Mock the core `BillingService` interface bean using `@MockBean` (or `@MockitoBean` depending on Boot version).
+     * Test Case 1 (`generateInvoice_Success`): Perform a POST to `/api/v1/invoices` with a fully populated, valid `InvoiceGenerationDTO` payload. Assert HTTP 201 Created and verify the returned JSON fields match the `InvoiceDTO` layout.
+     * Test Case 2 (`generateInvoice_ValidationFailed`): Perform a POST to `/api/v1/invoices` with a payload violating JSR-303 attributes (e.g., null patientId, negative totalAmount). Assert HTTP 400 Bad Request, verifying that our `GlobalExceptionHandler` intercepts the execution and lists the specific validation errors.
+     * Test Case 3 (`getInvoiceById_NotFound`): Mock `billingService.getInvoiceById(99L)` to throw a `ResourceNotFoundException`. Perform a GET request. Assert HTTP 404 Not Found and verify the JSON matches our standard `ErrorResponse` layout.
+     * Test Case 4 (`getInvoicesByPatient_Success`): Mock the `billingService.getInvoicesByPatient(1L)` endpoint to return a populated array of financial records. Perform a GET request to `/api/v1/invoices/patient/1`. Assert HTTP 200 OK and check that the array elements map correctly.
+     * Test Case 5 (`processPayment_Success`): Perform a POST to `/api/v1/invoices/1/payments` with a valid `PaymentProcessingDTO`. Assert HTTP 200 OK and check that the response matches the updated `InvoiceDTO`.
+     * Test Case 6 (`accessDenied_MissingGatewayToken`): Perform a GET request to `/api/v1/invoices/1` completely omitting the `X-Gateway-Token` header. Assert that our custom Java filter instantly halts execution, short-circuits the pipeline, and returns HTTP 403 Forbidden with the error message: "Direct access to backend microservices is strictly prohibited."
+
+3. CORE BUSINESS SERVICE LOGIC VERIFICATION (package: service)
+   - `BillingServiceTest` (Class):
+     * Construct unit tests isolating the `BillingServiceImpl` class by mocking its underlying `InvoiceRepository` dependency using standard `@Mock`.
+     * Test Case 1 (`processPayment_ThrowsInvalidPaymentException_OnOverpayment`): Mock finding an active invoice where the new payment amount plus `paidAmount` exceeds `totalAmount`. Verify that calling `billingService.processPayment(...)` cleanly throws an `InvalidPaymentException` and guarantees that `invoiceRepository.save()` is never triggered.
+     * Test Case 2 (`processPayment_StatusShiftsToPaid_Success`): Mock finding a valid active `Invoice` where the new payment completes the balance. Assert that calling the service method smoothly transforms their status state to `InvoiceStatus.PAID`, saves it, and verify that the object flushed to the persistence layer has matching numerical calculations.
+     * Test Case 3 (`softDeleteInvoice_VoidStatus_Success`): Mock finding a valid active `Invoice` entity. Assert that triggering the deletion method toggles its state smoothly to `InvoiceStatus.VOIDED` and flushes the update.
+
+Generate only raw, compilation-ready, high-coverage clean Java code clearly grouped by file header boundaries. Do not skip any line of code, do not use placeholder ellipses (...), and do not include conversational introductions.
+
 
 
