@@ -551,5 +551,55 @@ Please generate the following complete code files, explicitly indicating their t
 
 Generate only raw, production-grade, un-truncated file outputs structured by their explicit path directives. Do not skip any line of code or HTML tags, do not use placeholder ellipses (...), and do not include conversational introductions.
 
+Billing Service Module
+
+Prompt 1:
+
+
+Act as a Principal Enterprise Java Architect. Generate a clean, 100% complete, production-ready Spring Boot 3.x Core Architecture and Configuration layer for our 'Billing Service' module using Java 21, Spring Data JPA, and Lombok. This module will target a standalone PostgreSQL database environment and must contain full configurations to support downstream application-level security filters. Do not use code omissions, placeholders, or ellipses (...).
+
+Please generate the following dependencies for our module's `pom.xml` snippet, the target properties file, and the complete Java files under `com.smarthospital.billingservice`:
+
+1. REQUIRED STARTERS (Include inside the output pom dependencies snippet)
+   - `spring-boot-starter-data-jpa`
+   - `spring-boot-starter-web`
+   - `spring-boot-starter-security` (Required for downstream self-defending gateway token filter implementation)
+   - `spring-boot-starter-validation` (JSR-303 annotations)
+   - `org.postgresql:postgresql` (Runtime scope)
+
+2. CONFIGURATION MIRRORING (TARGET PATH: src/main/resources/application.properties)
+   - Generate the complete application properties file for this service. 
+   - Mirror the exact structure used in previous services: include the `spring.autoconfigure.exclude` string for `OAuth2ResourceServerAutoConfiguration` to allow standalone testing, and include the exact `smart.hospital.gateway.secret=smart-hospital-secure-vault-key` property mapping.
+   - Configure the server port to `8084`.
+   - Set up the Spring Data JPA connection string targeting PostgreSQL, explicitly changing only the database name segment to `smart_hospital_billing`.
+
+3. ENUMS (package: entity)
+   - `InvoiceStatus`: UNPAID, PAID, PARTIALLY_PAID, VOIDED
+
+4. ENTITIES (package: entity)
+   - `Invoice` (Annotate as @Entity, table: "invoices"): fields: id (Long, IDENTITY), patientId (Long, for cross-service tracking), appointmentId (Long, optional cross-service tracking), totalAmount (BigDecimal), insuranceCoveredAmount (BigDecimal), paidAmount (BigDecimal), status (ENUM String, default UNPAID), issuedAt (LocalDateTime), dueAt (LocalDateTime).
+
+5. DATA TRANSFER OBJECTS (package: dto)
+   - `InvoiceGenerationDTO`: Fields: patientId, appointmentId, totalAmount, insuranceCoveredAmount, dueAt.
+   - `PaymentProcessingDTO`: Fields: amountPaid (BigDecimal).
+   - `InvoiceDTO`: Complete financial matrix view including full ID, patientId, appointmentId, financial amounts, status, issue timestamp, and due date metrics.
+
+6. REPOSITORIES (package: repository)
+   - `InvoiceRepository`: Extends JpaRepository. Include query methods:
+     * `findByPatientId`: Find all financial records for a specific patient.
+     * `findByStatus`: Find all invoices matching a particular status state.
+
+7. CUSTOM EXCEPTIONS (package: exception)
+   - `ResourceNotFoundException` (Runtime exception taking a String message argument).
+   - `InvalidPaymentException` (Runtime exception taking a String message argument for processing errors like overpayments).
+
+8. BUSINESS LAYER (package: service & service.impl)
+   - `BillingService` (Interface): Declare methods for generateInvoice, getInvoiceById, processPayment, getInvoicesByPatient, getInvoicesByStatus.
+   - `BillingServiceImpl` (Class implementing BillingService): Implement full business logic. Enforce strict database rule validation:
+     * In `processPayment`, calculate the new `paidAmount`. If the new total exceeds `totalAmount`, throw an `InvalidPaymentException`. If it matches perfectly, shift the status state to `InvoiceStatus.PAID`. If it is less, toggle it to `InvoiceStatus.PARTIALLY_PAID`.
+     * Implement soft cancellation by shifting the status string to VOIDED instead of hard database row removal.
+
+Generate only compilation-ready, 100% complete Java and properties file outputs clearly grouped by explicit target path indicators. Do not skip any line of logic, do not use placeholders, and do not include conversational introduction summaries.
+
 
 
