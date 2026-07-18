@@ -940,3 +940,48 @@ Ingest this structural map completely. Do not write any code yet. Simply reply w
 We are now building the final production security hardening layer directly inside the `web-portal` module. We need to implement Spring Security 6.x Form Login and true Role-Based Access Control (RBAC) across three distinct internal user roles (`ROLE_ADMIN`, `ROLE_DOCTOR`, `ROLE_PATIENT`), fix the broken back-navigation hyperlinks across all existing templates to eliminate UI layout dead ends, and dynamically show/hide visual interface components using Thymeleaf Security attributes (`sec:authorize`).
 
 Confirm your understanding of this multi-service network landscape by responding exactly as requested.
+
+Frontened patch and Update
+
+Prompt 1:
+
+Act as a Principal Enterprise Java Security Architect. Generate a clean, 100% complete, production-ready Spring Security 6.x configuration and dynamic context router for our 'Web Portal' module (`web-portal`) under the package `com.smarthospital.webportal`. This configuration must enforce strict Form Login and server-side Role-Based Access Control (RBAC) across three distinct roles (`ROLE_ADMIN`, `ROLE_DOCTOR`, `ROLE_PATIENT`) with zero reliance on client-side JavaScript. Do not use code omissions, placeholders, or ellipses (...).
+
+Please generate the following complete Java files, explicitly indicating their target path destinations:
+
+1. TARGET PATH: src/main/java/com/smarthospital/webportal/config/SecurityConfig.java
+   - Full configuration class annotated with `@Configuration` and `@EnableWebSecurity`.
+   - Define a `BCryptPasswordEncoder` bean to handle secure hashing.
+   - Define an `InMemoryUserDetailsManager` bean initialized with exactly three user profiles:
+     * Username: "admin" | Password: Hashed value of "adminpassword" | Role: "ADMIN"
+     * Username: "doctor" | Password: Hashed value of "doctorpassword" | Role: "DOCTOR"
+     * Username: "patient" | Password: Hashed value of "patientpassword" | Role: "PATIENT"
+   - Define a `SecurityFilterChain` bean configuring the following rules:
+     * Authorize Requests (`authorizeHttpRequests`):
+       - `/portal/admin/**` paths require `ROLE_ADMIN`.
+       - `/portal/billing/**` paths require `ROLE_ADMIN` or `ROLE_DOCTOR`.
+       - `/portal/appointments/**` paths require `ROLE_ADMIN`, `ROLE_DOCTOR`, or `ROLE_PATIENT`.
+       - `/portal/doctors/**` paths require `ROLE_ADMIN`.
+       - `/portal/patients/**` paths require `ROLE_ADMIN` or `ROLE_DOCTOR`.
+       - Static visual assets (`/css/**`, `/js/**`, `/images/**`, `/webjars/**`) must be `permitAll()`.
+       - Any other request must be fully authenticated.
+     * Form Login (`formLogin`):
+       - Point to a custom login route: `/login`.
+       - Set the default success URL target to `/portal/home` with `alwaysUseDefaultSuccessUrl(true)`.
+       - Allow public access (`permitAll()`) to the login page.
+     * Logout (`logout`):
+       - Intercept `/logout`, invalidate the HTTP session, clear authentication context, and redirect back to `/login?logout`.
+       - Allow public access to logout.
+
+2. TARGET PATH: src/main/java/com/smarthospital/webportal/controller/PortalSecurityController.java
+   - Full Java controller class annotated with `@Controller`.
+   - Map a GET request to `/login` to simply compile and return the view template layout `"security/login"`.
+   - Map a GET request to `/portal/home` to handle dynamic role routing:
+     * Inject `Authentication` context parameters into the method.
+     * Extract the user's granted authorities using `authentication.getAuthorities()`.
+     * If the user possesses `ROLE_ADMIN`, return a server-side redirect string pointing to `redirect:/portal/admin/dashboard`.
+     * If the user possesses `ROLE_DOCTOR`, return a server-side redirect string pointing to `redirect:/portal/doctors`.
+     * If the user possesses `ROLE_PATIENT`, return a server-side redirect string pointing to `redirect:/portal/appointments`.
+     * Default fallback if no role matches should gracefully redirect back to `/login?error`.
+
+Generate only raw, compilation-ready, 100% complete Java code strings grouped cleanly by their explicit path indicators. Do not skip any line of code, loops, or configurations, and do not include conversational introductions.
