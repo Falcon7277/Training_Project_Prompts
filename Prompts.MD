@@ -511,6 +511,45 @@ Please generate the following test files across the appropriate packages under `
 
 Generate only raw, compilation-ready, high-coverage clean Java code clearly grouped by file header boundaries. Do not skip any line of code, do not use placeholder ellipses (...), and do not include conversational introductions.
 
+Prompt 4:
+
+
+Act as a Principal Full-Stack Engineer and Automation Architect. Generate a zero-manual-intervention, compilation-ready implementation of the pure HTML/CSS Thymeleaf Web Portal layer for our 'Appointment Management System' within the `web-portal` module using Java 21, Spring Cloud OpenFeign, Spring Web, and HTML5/Thymeleaf templates. Strictly prohibit any JavaScript scripts, external JS files, or client-side scripting frameworks. Rely completely on server-side rendering, standard HTTP POST/GET lifecycles, and raw Bootstrap 5 utility classes for layout and visual transitions.
+
+Please generate the following complete code files, explicitly indicating their target file path destinations:
+
+1. TARGET PATH: src/main/java/com/smarthospital/webportal/client/AppointmentFeignClient.java
+   - Full client interface annotated with `@FeignClient(name = "appointment-service", url = "${backend.appointment-service.url}")`.
+   - The global `FeignGatewaySecurityInterceptor` already handles header injection, so provide straight client mappings for:
+     * GET `/api/v1/appointments/patient/{patientId}` fetching details by patient.
+     * GET `/api/v1/appointments/{id}` fetching details by single ID.
+     * POST `/api/v1/appointments` sending `AppointmentSchedulingDTO`.
+     * PUT `/api/v1/appointments/{id}/status` sending `AppointmentStatusUpdateDTO`.
+
+2. TARGET PATH: src/main/java/com/smarthospital/webportal/controller/AppointmentWebController.java
+   - Full `@Controller` handling web requests under `@RequestMapping("/portal/appointments")`.
+   - Inject `AppointmentFeignClient`, `PatientFeignClient`, and `DoctorFeignClient` to enable cross-resource form composability.
+   - Map GET `/` to invoke the client (using an aggregate or specific lookup), inject the appointment data arrays into the Spring UI `Model`, and return the template view name `"appointments/list"`.
+   - Map GET `/schedule` to fetch the complete lists of active patients and doctors via their respective clients, add them to the model for selection dropdowns along with an empty `AppointmentSchedulingDTO` wrapper, and return view `"appointments/schedule"`.
+   - Map POST `/schedule` to process the scheduling form submission, forward data to the Feign client, and redirect using `RedirectAttributes` to append a server-side `successMessage` flash attribute back to `/portal/appointments`.
+   - Map POST `/{id}/cancel` to trigger the backend soft-cancellation lifecycle via Feign and redirect back to the main list with a success message banner.
+
+3. TARGET PATH: src/main/resources/templates/appointments/list.html
+   - Provide the complete, production-ready HTML5 template with Bootstrap 5 and Bootstrap Icons integration. Zero `<script>` tags allowed.
+   - Core Navigation Panel: Link the 'Patients' button to `/portal/patients` and the 'Doctors' button to `/portal/doctors`. For the remaining layout navigation (Billing, Analytics, etc.), explicitly implement safe dead links using `th:href="@{#}"` annotated as `disabled` to prevent compilation failures.
+   - Render a data table displaying appointment profiles using `th:each`, with status badge highlights using native Bootstrap alert/badge classes (SCHEDULED: primary-subtle, FULFILLED: success-subtle, CANCELLED: danger-subtle, NO_SHOW: warning-subtle).
+   - Display matching names for Patient and Doctor IDs using cell text placeholders or cross-reference structures.
+   - Add native HTML/CSS notification alert banners matching `${successMessage}` that display based entirely on server-side compilation (`th:if`).
+   - Add an empty database handler checking `th:if="${#lists.isEmpty(appointments)}"`.
+
+4. TARGET PATH: src/main/resources/templates/appointments/schedule.html
+   - Provide the complete HTML5 scheduling form template using Bootstrap 5 layout grids. Zero Javascript code permitted for form handling or validation submission.
+   - Map a form component with `th:action="@{/portal/appointments/schedule}"` and `th:object="${appointmentSchedulingDTO}"` using method="POST".
+   - Include complete server-side HTML `<select>` dropdown menus for `patientId` (looping through `${patients}` via `th:each` to map `id` as value and `firstName + ' ' + lastName` as label) and `doctorId` (looping through `${doctors}`).
+   - Include structural inputs for `appointmentDateTime` (using native browser `type="datetime-local"` controls), `reasonForVisit` (textarea), and `notes` (textarea).
+   - Include a cancel hyperlink (`<a>` tag) returning safely back to `/portal/appointments`.
+
+Generate only raw, production-grade, un-truncated file outputs structured by their explicit path directives. Do not skip any line of code or HTML tags, do not use placeholder ellipses (...), and do not include conversational introductions.
 
 
 
