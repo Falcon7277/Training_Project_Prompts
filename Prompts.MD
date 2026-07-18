@@ -195,39 +195,45 @@ Generate only compilation-ready, high-coverage clean Java code clearly grouped b
 
 Prompt 4:
 
-Act as a Principal Full-Stack Java Developer. Generate the Thymeleaf Web Portal exposure layer for our 'Patient Management Dashboard' inside the `web-portal` module using Java 21, Spring Web, Spring Cloud OpenFeign, and Thymeleaf templates. This layer must seamlessly communicate with our self-defending backend 'Patient Service'.
+Act as a Principal Full-Stack Engineer and Automation Architect. Generate a zero-manual-intervention, compilation-ready implementation of the pure HTML/CSS Thymeleaf Web Portal layer for our 'Patient Management System' within the `web-portal` module using Java 21, Spring Cloud OpenFeign, Spring Web, and HTML5/Thymeleaf templates. Strictly prohibit any JavaScript scripts, external JS files, or client-side scripting frameworks. Rely completely on server-side rendering, standard HTTP POST/GET lifecycles, and raw Bootstrap 5 utility classes for layout and visual transitions.
 
-Please generate the following files across the appropriate packages under `com.smarthospital.webportal`:
+Please generate the following complete code files, explicitly indicating their target file path destinations:
 
-1. SECURITY ORCHESTRATION & FEIGN INTERCEPTOR (package: config)
-   - `FeignGatewaySecurityInterceptor` (Class, implements feign.RequestInterceptor):
-     * Read a configured environment property: `smart.hospital.gateway.secret`.
-     * Override the `apply(RequestTemplate template)` method to automatically inject the HTTP Header `X-Gateway-Token` with the secret value into every outbound Feign client call. This ensures our frontend requests safely pass the backend service's Java firewall checks without modifying client interfaces.
+1. TARGET PATH: src/main/java/com/smarthospital/webportal/config/FeignGatewaySecurityInterceptor.java
+   - Full Java class implementing `feign.RequestInterceptor`.
+   - Read the property `smart.hospital.gateway.secret` using `@Value`.
+   - Implement `apply(RequestTemplate template)` to inject the exact HTTP Header: `template.header("X-Gateway-Token", gatewaySecret);` to satisfy downstream microservice security filters.
 
-2. FEIGN CLIENT INTERFACE (package: client)
-   - `PatientFeignClient` (Interface, annotated with @FeignClient(name = "patient-service", url = "${backend.patient-service.url}")):
-     * Map the required backend endpoints:
-       - GET `/api/v1/patients` (with search and pagination parameters)
-       - GET `/api/v1/patients/{id}`
-       - POST `/api/v1/patients` (takes PatientRegistrationDTO)
-       - PUT `/api/v1/patients/{id}/medical-profile` (takes MedicalProfileUpdateDTO)
+2. TARGET PATH: src/main/java/com/smarthospital/webportal/client/PatientFeignClient.java
+   - Full client interface annotated with `@FeignClient(name = "patient-service", url = "${backend.patient-service.url}")`.
+   - Include complete mappings for:
+     * GET `/api/v1/patients` matching search params (`String searchTerm`, `Pageable pageable`).
+     * GET `/api/v1/patients/{id}` fetching details.
+     * POST `/api/v1/patients` sending `PatientRegistrationDTO`.
+     * PUT `/api/v1/patients/{id}/medical-profile` sending `MedicalProfileUpdateDTO`.
 
-3. WEB FRONTEND CONTROLLER (package: controller)
-   - `PatientWebController` (Class, annotated with @Controller, @RequestMapping("/portal/patients")): Inject `PatientFeignClient`.
-     * **GET `/`**: Call the Feign client to fetch a paginated list of patients based on an optional search query. Add the results to the Spring UI `Model` and return the view name `"patients/list"`.
-     * **GET `/register`**: Add an empty `PatientRegistrationDTO` to the model and return view `"patients/register"`.
-     * **POST `/register`**: Accept form submission, trigger the Feign client `POST`, and redirect to `/portal/patients` with a success flash attribute.
-     * **GET `/{id}/medical-profile`**: Fetch details for a specific patient, map them to the model, and return view `"patients/medical-profile"`.
+3. TARGET PATH: src/main/java/com/smarthospital/webportal/controller/PatientWebController.java
+   - Full `@Controller` handling requests under `@RequestMapping("/portal/patients")`.
+   - Inject `PatientFeignClient`.
+   - Map GET `/` to invoke the client, inject paginated data arrays to the Spring UI `Model`, and return `"patients/list"`.
+   - Map GET `/register` to supply an empty registration DTO wrapper and return `"patients/register"`.
+   - Map POST `/register` to process the form, forward data to the Feign client, and redirect using RedirectAttributes to append a server-side `successMessage` flash attribute back to `/portal/patients`.
 
-4. THYMELEAF TEMPLATE (Path: src/main/resources/templates/patients/list.html)
-   - Generate a clean, responsive HTML5 layout using Bootstrap 5 styling. Include a functional search bar targeting the search endpoint, a dynamic text data table displaying patient records via `th:each`, status badge styles matching our ENUMs, and pagination control links ("Next" / "Previous").
+4. TARGET PATH: src/main/resources/templates/patients/list.html
+   - Provide the complete, production-ready HTML5 template with Bootstrap 5 and Bootstrap Icons integration. Zero `<script>` tags allowed.
+   - Implement a functional search form using standard HTML form inputs linking back to `/portal/patients` via GET.
+   - Render a data table displaying patient data using `th:each`, with status badge highlights using native Bootstrap alert/badge classes (ACTIVE: success-subtle, INACTIVE: danger-subtle, DISCHARGED: secondary-subtle).
+   - Add native HTML/CSS notification alert banners matching `${successMessage}` that display based entirely on server-side compilation (`th:if`).
+   - Add an empty database handler checking `th:if="${#lists.isEmpty(patients)}"`.
+   - Implement server-side pagination footer navigation using native HTML `<a>` links that pass explicit `page` and `size` parameters back to the URL.
 
-Generate only compilation-ready, high-quality code structured cleanly by file boundaries. Do not include chat introduction prose or conversational summaries.
+5. TARGET PATH: src/main/resources/templates/patients/register.html
+   - Provide the complete HTML5 registration form template using Bootstrap 5 layout grids. Zero Javascript code permitted for form handling or validation submission.
+   - Map a form component with `th:action="@{/portal/patients/register}"` and `th:object="${patientRegistrationDTO}"` using method="POST".
+   - Include complete structural text inputs for `firstName`, `lastName`, `email`, `phoneNumber`, `dateOfBirth` (using native browser `type="date"` controls), and nested fields for `emergencyContact.contactName`, `emergencyContact.relationship`, and `emergencyContact.contactPhone`.
+   - Include a cancel hyperlink (`<a>` tag) returning safely back to `/portal/patients`.
 
-Also add the following in the application.properties file:
-smart.hospital.gateway.secret=smart-hospital-secure-vault-key
-backend.patient-service.url=http://localhost:8081
-and verify the application.properties file of patient service to see if they both have thesame hardcoded key 
+Generate only raw, production-grade, un-truncated file outputs structured by their explicit path directives. Do not skip any line of code or HTML tags, do not use placeholder ellipses (...), and do not include conversational introductions. 
 
 Doctor Service Module
 
