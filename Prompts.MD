@@ -321,4 +321,36 @@ Please generate the following complete Java files under `com.smarthospital.docto
 
 Generate only raw, compilation-ready, 100% complete Java code strings grouped cleanly by their explicit path indicators. Do not skip any line of code or structural brackets, and do not include conversational responses.
 
+Prompt 3:
+
+Act as a Principal QA and Test Automation Engineer. Generate a comprehensive, production-grade JUnit 5 and MockMvc testing suite for the exposure, validation, and business logic layers of our 'Doctor Service' module using Spring Boot 3.x, Java 21, Mockito, and AssertJ. All tests must execute quickly and cleanly in isolation without requiring an active PostgreSQL instance. Do not use code omissions, placeholders, or ellipses (...).
+
+Please generate the following test files across the appropriate packages under `src/test/java/com/smarthospital/doctorservice`:
+
+1. BASE TEST SPECIFICATION (package: controller)
+   - `BaseControllerTest` (Abstract Class): 
+     * Initialize the core MockMvc context framework using `@WebMvcTest(DoctorController.class)`.
+     * Define the security tracking property: `protected static final String GATEWAY_SECRET = "smart-hospital-secure-vault-key";`
+     * Implement a reusable MockMvc request builder helper (or RequestPostProcessor) that automatically injects the custom HTTP header `X-Gateway-Token` with the value of `GATEWAY_SECRET` into test executions to satisfy our application-level Java security isolation rules.
+
+2. CONTROLLER EXPOSURE & EDGE-CASE VERIFICATION (package: controller)
+   - `DoctorControllerTest` (Class, extends BaseControllerTest): 
+     * Mock the core `DoctorService` interface bean using `@MockBean` (or `@MockitoBean` depending on Boot version).
+     * Test Case 1 (`registerDoctor_Success`): Perform a POST to `/api/v1/doctors` with a fully populated, valid `DoctorRegistrationDTO` payload (including valid email, specialization, and nested availability metrics). Assert HTTP 201 Created and verify the returned JSON fields match the `DoctorDTO` layout.
+     * Test Case 2 (`registerDoctor_ValidationFailed`): Perform a POST to `/api/v1/doctors` with a payload violating JSR-303 attributes (e.g., blank firstName, invalid email format, or empty licenseNumber). Assert HTTP 400 Bad Request, verifying that our `GlobalExceptionHandler` intercepts the execution and lists the specific validation errors.
+     * Test Case 3 (`getDoctorById_NotFound`): Mock `doctorService.getDoctorById(99L)` to throw a `ResourceNotFoundException`. Perform a GET request. Assert HTTP 404 Not Found and verify the JSON matches our standard `ErrorResponse` layout.
+     * Test Case 4 (`searchDoctors_Paginated_Success`): Mock the `doctorService.searchDoctors(anyString(), any(), any())` endpoint to return a populated Spring Data `Page<DoctorDTO>` wrapper. Perform a GET request with query params (`?searchTerm=General&status=ACTIVE&page=0&size=5`). Assert HTTP 200 OK and ensure the paginated JSON structure renders cleanly.
+     * Test Case 5 (`getDoctorSummariesByIds_Success`): Test the cross-service aggregation route. Perform a POST to `/api/v1/doctors/summary` passing a `List<Long>` array of primitive IDs `[1L, 2L]`. Assert HTTP 200 OK and check that it accurately returns a `List<DoctorSummaryDTO>`.
+     * Test Case 6 (`accessDenied_MissingGatewayToken`): Perform a GET request to `/api/v1/doctors/1` completely omitting the `X-Gateway-Token` header. Assert that our custom Java filter instantly halts execution, short-circuits the pipeline, and returns HTTP 403 Forbidden with the error message: "Direct access to backend microservices is strictly prohibited."
+
+3. CORE BUSINESS SERVICE LOGIC VERIFICATION (package: service)
+   - `DoctorServiceTest` (Class):
+     * Construct unit tests isolating the `DoctorServiceImpl` class by mocking its underlying `DoctorRepository` and `DoctorAvailabilityRepository` dependencies using standard `@Mock`.
+     * Test Case 1 (`registerDoctor_ThrowsDuplicateException`): Mock `doctorRepository.existsByEmail("duplicate@hospital.com")` to return true. Verify that calling `doctorService.registerDoctor(...)` cleanly throws a `DuplicateResourceException` and guarantees that `doctorRepository.save()` is never triggered.
+     * Test Case 2 (`softDeleteDoctor_Success`): Mock finding a valid active `Doctor` entity. Assert that calling the deletion business method smoothly transforms their status state to `DoctorStatus.SUSPENDED`, saves it, and verify that the modified object is flushed to the persistence layer.
+     * Test Case 3 (`softDelete_AlreadySuspended_EdgeCase`): Mock finding a `Doctor` entity that is already marked as `DoctorStatus.SUSPENDED`. Verify that the business logic handles it gracefully (either short-circuiting efficiently without running an unnecessary repository update, or throwing an explicit domain business error).
+
+Generate only raw, compilation-ready, high-coverage clean Java code clearly grouped by file header boundaries. Do not skip any line of code, do not use placeholder ellipses (...), and do not include conversational introductions.
+
+
 
