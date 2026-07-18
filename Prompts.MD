@@ -671,5 +671,50 @@ Please generate the following test files across the appropriate packages under `
 
 Generate only raw, compilation-ready, high-coverage clean Java code clearly grouped by file header boundaries. Do not skip any line of code, do not use placeholder ellipses (...), and do not include conversational introductions.
 
+Prompt 4:
 
+Act as a Principal Full-Stack Engineer and Automation Architect. Generate a zero-manual-intervention, compilation-ready implementation of the pure HTML/CSS Thymeleaf Web Portal layer for our 'Billing Management System' within the `web-portal` module using Java 21, Spring Cloud OpenFeign, Spring Web, and HTML5/Thymeleaf templates. Strictly prohibit any JavaScript scripts, external JS files, or client-side scripting frameworks. Rely completely on server-side rendering, standard HTTP POST/GET lifecycles, and raw Bootstrap 5 utility classes for layout and visual transitions.
+
+Please generate the following complete code files, explicitly indicating their target file path destinations:
+
+1. TARGET PATH: src/main/java/com/smarthospital/webportal/client/BillingFeignClient.java
+   - Full client interface annotated with `@FeignClient(name = "billing-service", url = "${backend.billing-service.url}")`.
+   - The global `FeignGatewaySecurityInterceptor` already handles header injection, so provide straight client mappings for:
+     * GET `/api/v1/invoices/patient/{patientId}` fetching billing statements by patient ID.
+     * GET `/api/v1/invoices/{id}` fetching details for a single statement.
+     * POST `/api/v1/invoices` generating a new invoice via `InvoiceGenerationDTO`.
+     * POST `/api/v1/invoices/{id}/payments` processing a payment installment via `PaymentProcessingDTO`.
+     * DELETE `/api/v1/invoices/{id}` voiding a financial record.
+
+2. TARGET PATH: src/main/java/com/smarthospital/webportal/controller/BillingWebController.java
+   - Full `@Controller` handling web requests under `@RequestMapping("/portal/billing")`.
+   - Inject `BillingFeignClient`, `PatientFeignClient`, and `AppointmentFeignClient`.
+   - Map GET `/` to invoke the client (using an aggregate or specific lookup), inject the invoice data arrays into the Spring UI `Model`, and return the template view name `"billing/list"`.
+   - Map GET `/generate` to fetch active patient records via `PatientFeignClient`, inject the collections to the model for form selection dropdowns along with an empty `InvoiceGenerationDTO` wrapper, and return view `"billing/generate"`.
+   - Map POST `/generate` to process the creation form submission, forward data to the Feign client, and redirect using `RedirectAttributes` to append a server-side `successMessage` flash string back to `/portal/billing`.
+   - Map GET `/{id}/payment` to fetch details for a single invoice, add an empty `PaymentProcessingDTO` wrapper to the model, and return view `"billing/payment"`.
+   - Map POST `/{id}/payment` to execute payment posting via Feign, intercept potential runtime execution exceptions, and redirect back to the ledger overview displaying corresponding text feedback banners.
+
+3. TARGET PATH: src/main/resources/templates/billing/list.html
+   - Provide the complete, production-ready HTML5 template with Bootstrap 5 and Bootstrap Icons integration. Zero `<script>` tags allowed.
+   - Core Navigation Panel: Active navigation paths linking to `/portal/patients`, `/portal/doctors`, `/portal/appointments`, and `/portal/billing`. For any remaining layouts not yet built, implement safe dead links via `th:href="@{#}"` marked as `disabled`.
+   - Render a financial data ledger table displaying statement data using `th:each`, with status badge highlights using native Bootstrap alert/badge classes (UNPAID: danger-subtle text-danger, PAID: success-subtle text-success, PARTIALLY_PAID: warning-subtle text-warning, VOIDED: secondary-subtle text-secondary).
+   - Add native HTML/CSS notification alert banners matching `${successMessage}` or validation failures that display based entirely on server-side compilation (`th:if`).
+   - Add an empty database handler checking `th:if="${#lists.isEmpty(invoices)}"`.
+
+4. TARGET PATH: src/main/resources/templates/billing/generate.html
+   - Provide the complete HTML5 creation form template using Bootstrap 5 layout grids. Zero Javascript code permitted for form handling or validation submission.
+   - Map a form component with `th:action="@{/portal/billing/generate}"` and `th:object="${invoiceGenerationDTO}"` using method="POST".
+   - Include complete server-side HTML `<select>` dropdown menus for `patientId` (looping through `${patients}` via `th:each` to map `id` as value and name strings as labels).
+   - Include structural numerical and calendar inputs for `totalAmount` (type="number", step="0.01"), `insuranceCoveredAmount` (type="number", step="0.01"), and `dueAt` (using native browser `type="date"` controls).
+   - Include a cancel hyperlink (`<a>` tag) returning safely back to `/portal/billing`.
+
+5. TARGET PATH: src/main/resources/templates/billing/payment.html
+   - Provide the complete HTML5 payment posting form template using Bootstrap 5 layout grids. Zero Javascript code permitted.
+   - Map a form component with `th:action="@{/portal/billing/{id}/payment(id=${invoice.id})}"` and `th:object="${paymentProcessingDTO}"` using method="POST".
+   - Display current summary metrics of the target statement using clear text displays showing invoice ID, balance totals, and amounts already paid.
+   - Provide a structural numeric input for `amountPaid` (type="number", step="0.01", min="0.01").
+   - Include a cancel hyperlink (`<a>` tag) returning safely back to `/portal/billing`.
+
+Generate only raw, production-grade, un-truncated file outputs structured by their explicit path directives. Do not skip any line of code or HTML tags, do not use placeholder ellipses (...), and do not include conversational introductions.
 
