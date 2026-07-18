@@ -1020,3 +1020,39 @@ Please generate the following complete template files, explicitly indicating the
    - Include an explicit "Return to Main Hub" navigation hyperlink element structured as `<a th:href="@{${backUrl}}" class="btn btn-sm btn-outline-secondary mb-3"><i class="bi bi-arrow-left"></i> Back to Hub</a>` ensuring users can always drop backward out of specialized sub-modules instead of becoming trapped.
 
 Generate only raw, production-grade, un-truncated file outputs structured by their explicit path directives. Do not skip any lines of layout components, HTML structural elements, or Thymeleaf expressions, and do not include conversational introductions.
+
+Prompt 3:
+
+Act as a Principal Full-Stack Engineer and UI/UX Automation Architect. Generate a zero-manual-intervention, 100% complete, and compilation-ready UI Dashboard Patch for the 'Web Portal' module (`web-portal`) using HTML5, Thymeleaf, Thymeleaf Extras Spring Security 6, and Bootstrap 5. This patch will update all core list dashboard view templates to inject our new security-aware navbar and back-navigation breadcrumbs, completely eliminating layout dead ends and enforcing structural interface shielding based on roles. Do not use code omissions, placeholders, or ellipses (...).
+
+Please generate the complete source code for the following updated template files, explicitly indicating their target path destinations:
+
+1. TARGET PATH: src/main/resources/templates/patients/list.html
+   - Full, un-truncated Patient Management Dashboard template.
+   - Inject the security-aware navigation fragment at the top of the body using `<div th:replace="~{fragments/navigation :: navbar}"></div>`.
+   - Directly underneath, inject the reusable breadcrumb header using `<div th:replace="~{fragments/breadcrumbs :: header('Patient Management Dashboard', '/portal/home')}"></div>`.
+   - Wrap the "Onboard New Patient" button action anchor using `sec:authorize="hasRole('ADMIN')"` so only administrative personnel can see or trigger the patient creation sub-flow.
+   - Maintain the data table loop rendering `${patients}` via `th:each`, keeping search fields and pagination text buttons fully functional.
+
+2. TARGET PATH: src/main/resources/templates/doctors/list.html
+   - Full, un-truncated Doctor Management Dashboard template.
+   - Inject the security navbar: `<div th:replace="~{fragments/navigation :: navbar}"></div>`.
+   - Inject the back-navigation breadcrumb anchor: `<div th:replace="~{fragments/breadcrumbs :: header('Doctor Management Dashboard', '/portal/home')}"></div>`.
+   - Wrap the "Register New Doctor" action anchor using `sec:authorize="hasRole('ADMIN')"` to limit view access.
+   - Maintain the data grid table loop rendering active medical staff profiles cleanly.
+
+3. TARGET PATH: src/main/resources/templates/appointments/list.html
+   - Full, un-truncated Appointment Management Dashboard template.
+   - Inject the security navbar: `<div th:replace="~{fragments/navigation :: navbar}"></div>`.
+   - Inject the back-navigation breadcrumb anchor: `<div th:replace="~{fragments/breadcrumbs :: header('Appointment Management Dashboard', '/portal/home')}"></div>`.
+   - Ensure the "Schedule Appointment Slot" action button is visible to all authenticated accounts (`sec:authorize="isAuthenticated()"`).
+   - Maintain the dropdown filter selections and data grid view for active scheduled slot checks.
+
+4. TARGET PATH: src/main/resources/templates/billing/list.html
+   - Full, un-truncated Billing Management Dashboard template.
+   - Inject the security navbar: `<div th:replace="~{fragments/navigation :: navbar}"></div>`.
+   - Inject the back-navigation breadcrumb anchor: `<div th:replace="~{fragments/breadcrumbs :: header('Billing & Revenue Management Ledger', '/portal/home')}"></div>`.
+   - Wrap the "Create Invoice" / "Generate Financial Statement" button component using `sec:authorize="hasRole('ADMIN')"` to protect high-privilege billing creation tasks.
+   - Maintain the financial ledger statement data grid loops displaying invoice rows and payment statuses.
+
+Generate only raw, production-grade, un-truncated file outputs structured by their explicit path directives. Do not skip any line of HTML components, data loops, or layout configurations, and do not include conversational introductions.
