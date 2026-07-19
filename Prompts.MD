@@ -1250,3 +1250,34 @@ In `PatientWebController.java`, delete the import statements for `EmergencyConta
 In `DoctorWebController.java`, delete the import statement for `DoctorRegistrationDTO`.
 
 Provide the precise file updates. Ensure compilation safety.
+
+Final Test Run :
+
+Prompt 1:
+
+Act as a Principal QA Automation Engineer and Spring Boot Test Architect. Generate a 100% complete, un-truncated, and compilation-ready Comprehensive Integration Testing and Diagnostics Harness for our multi-module project workspace under the package `com.smarthospital.webportal`. This prompt will simultaneously execute all unit test suites, build an integration test targeting core application components, and wire up a scriptless live simulation smoke run. Do not use code omissions, placeholders, or ellipses (...).
+
+Please generate the following complete components, explicitly indicating their target path directives:
+
+1. COMPONENT 1: COMPREHENSIVE TEST DIAGNOSTIC RUNNER (TARGET PATH: src/test/java/com/smarthospital/webportal/diagnostics/SystemArchitectureSanityTest.java)
+   - Complete Spring Boot test class annotated with `@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.MOCK)`.
+   - Include a comprehensive diagnostic method `@Test public void executeCompleteTestSuiteSanityCheck()` that checks the application layout:
+     * Reflectively scans `PatientWebController`, `DoctorWebController`, `AppointmentWebController`, and `BillingWebController` to guarantee no duplicate `@PostMapping` or `@GetMapping` path collisions remain.
+     * Verifies that all target DTO configurations contain the required security payload fields (specifically ensuring that request builder classes map `.password("Welcome@2026")` to accommodate `@NotBlank` data validation rules).
+
+2. COMPONENT 2: MICROSERVICE COMPONENT INTEGRATION MOCK (TARGET PATH: src/test/java/com/smarthospital/webportal/integration/CrossServiceComponentIntegrationTest.java)
+   - Complete Integration Test Class utilizing `@AutoConfigureMockMvc`.
+   - Mock all downstream client calls using `@MockBean` targets for `PatientFeignClient`, `DoctorFeignClient`, `AppointmentFeignClient`, and `BillingFeignClient`.
+   - Write a complete integration test method verifying the Security identity context mapping layer:
+     * Stub out a mock call to the Doctor Feign client to simulate retrieving a doctor profile record matching the credentials ("doctor@smarthospital.com").
+     * Execute a MockMvc perform POST request targeting `/login` passing those exact parameter headers.
+     * Assert that the security configuration correctly catches the identity context and smoothly routes the redirect string destination directly to the dynamic landing page (`/portal/doctors/view/*`).
+
+3. COMPONENT 3: LIVE REPLICATION SMOKE RUN SCRIPT (TARGET PATH: src/test/resources/smoke-test-pipeline.sh)
+   - A complete, pure Bash shell script (`#!/bin/bash`) designed to be executed from the multi-module project root directory to replicate a live ecosystem smoke run.
+   - The script must automate the following workflow step-by-step:
+     * Phase 1: Run a clean compilation test framework build by executing: `mvn clean test`
+     * Phase 2: Echo status indicators out to the terminal console tracking module initialization metrics.
+     * Phase 3: Provide diagnostic assertions checking that targets compile seamlessly with zero lingering unused import statements or DTO mismatch configurations.
+
+Generate only raw, production-grade, 100% complete Java and script strings grouped cleanly by their explicit path indicators. Do not skip any structural code lines, configuration definitions, or assert statements, and do not include conversational introduction summaries.
