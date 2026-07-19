@@ -1152,3 +1152,25 @@ TARGET PATH: src/main/java/com/smarthospital/webportal/controller/PortalSecurity
   * Provide a robust fallback redirecting straight to `/login?error` if authorization parameters fail to resolve.
 
 Generate only raw, compilation-ready, 100% complete Java code. Do not skip any brackets, logic lines, or import statements, and do not include conversational introductions.
+
+Prompt 2B:
+
+Act as a Principal Enterprise Java Architect. Generate a 100% complete, compilation-ready Java controller class for the 'Web Portal' module (`web-portal`) under the package `com.smarthospital.webportal.controller`. This controller aggregates isolated, patient-specific data across distributed cross-service microservice boundaries based on the authenticated context primary key. Do not use code omissions, placeholders, or ellipses (...).
+
+Please generate the following complete Java file, explicitly indicating its target path destination:
+
+TARGET PATH: src/main/java/com/smarthospital/webportal/controller/PatientDashboardController.java
+- Full Java controller class annotated with `@Controller` and `@RequestMapping("/portal/patients/my-profile")`.
+- Inject the following component instances via constructor dependency injection:
+  * `com.smarthospital.webportal.client.PatientFeignClient`
+  * `com.smarthospital.webportal.client.AppointmentFeignClient`
+  * `com.smarthospital.webportal.client.BillingFeignClient`
+- Map a GET request to the path parameter resource route `/{id}` where `{id}` represents the dynamic patient primary key.
+- Inside the method handler, handle the inbound data lookup using the passed `id` parameter:
+  * Invoke `PatientFeignClient.findById(id)` to retrieve the patient's specific core biodata profile mapping information.
+  * Invoke `AppointmentFeignClient.findByPatientId(id)` to extract only their personal history of scheduled clinical appointments.
+  * Invoke `BillingFeignClient.findByPatientId(id)` to collect only their outstanding ledger bills and invoice list arrays.
+- Push all distinct microservice response objects into the Spring UI `Model` context map under meaningful attribute names (`"patient"`, `"appointments"`, `"invoices"`).
+- Return the explicit server-side Thymeleaf view layout target string: `"patients/my_profile"`.
+
+Generate only raw, compilation-ready, 100% complete Java code. Do not skip any import statements, variables, mapping annotations, or constructor arguments, and do not include conversational introductions.
