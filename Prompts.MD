@@ -1229,3 +1229,24 @@ Please generate the following complete Java files, explicitly indicating their t
      * `verifyClientConnectivityStubs()`: Smoke test validation logic using mock invocations ensuring that OpenFeign interfaces align with all DTO data changes without breaking structure layers.
 
 Generate only raw, compilation-ready, 100% complete Java code strings grouped cleanly by their explicit path indicators. Do not skip any brackets, logical components, or validation assertions, and do not include conversational introductions.
+
+Test Suite Patch 
+
+Promtp 1:
+
+Act as a Principal Java Developer. I need you to perform a surgical code cleanup to fix failing tests and duplicate route mappings. Do not rewrite the entire files from scratch; only apply the specific removals and additions requested below.
+
+Execute the following 3 steps:
+
+1. FIX THE TESTS (DTO Validation Failure):
+Scan the test files for `PatientWebController` and `DoctorWebController` (or their respective test classes). In the mock request builders where `PatientRegistrationDTO` and `DoctorRegistrationDTO` are created, add the missing field `.password("Welcome@2026")` so the `@NotBlank` validation passes.
+
+2. FIX THE ROUTING CONFLICT:
+Open `src/main/java/com/smarthospital/webportal/controller/PatientWebController.java`. Delete the `GET /register` and `POST /register` methods entirely (they are now handled by PatientRegistrationWebController).
+Open `src/main/java/com/smarthospital/webportal/controller/DoctorWebController.java`. Delete the `GET /register` and `POST /register` methods entirely (they are now handled by DoctorRegistrationWebController).
+
+3. CLEANUP UNUSED IMPORTS:
+In `PatientWebController.java`, delete the import statements for `EmergencyContactDTO` and `PatientRegistrationDTO`.
+In `DoctorWebController.java`, delete the import statement for `DoctorRegistrationDTO`.
+
+Provide the precise file updates. Ensure compilation safety.
