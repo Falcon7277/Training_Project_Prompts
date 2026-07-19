@@ -1199,3 +1199,33 @@ Please generate the following complete layout files, explicitly indicating their
    - Personal Financial Balances Ledger Table: Render a data table mapping out the `${invoices}` array. Standard data columns display Invoice ID, Due Date, Total Amount, Paid Amount, and Status with text classes. Include a fallback `<p th:if="${#lists.isEmpty(invoices)}">No invoice statements logged.</p>`.
 
 Generate only raw, production-ready, un-truncated HTML code files grouped by their explicit target path directives. Do not skip any line of layout tags, tables, or structural brackets, and do not include conversational introduction summaries.
+
+Prompt 4:
+
+Act as a Principal Full-Stack Engineer and Automation Architect. Generate a 100% complete, compilation-ready production registration patch and test validation script for the 'Web Portal' module (`web-portal`) using Java 21 and Spring Boot 3.x. This layer updates the controller form submission onboarding processing logic to securely map individual credential parameters, and provisions a unified Maven integration test harness to verify cross-service compilation safety across all entity and DTO alterations. Do not use code omissions, placeholders, or ellipses (...).
+
+Please generate the following complete Java files, explicitly indicating their target path destinations:
+
+1. TARGET PATH: src/main/java/com/smarthospital/webportal/controller/PatientRegistrationWebController.java
+   - Full Java controller handling creation form targets, annotated with `@Controller` and `@RequestMapping("/portal/patients")`.
+   - Inject `PatientFeignClient` and `org.springframework.security.crypto.password.PasswordEncoder` via constructor dependency injection.
+   - Update the POST `/register` method handling data binding for a new profile:
+     * Extract the plain text email address from the incoming form DTO mapping.
+     * Use the `PasswordEncoder.encode("Welcome@2026")` execution parameter to automatically hash a clean, standardized baseline security credential for the newly created profile.
+     * Attach this securely generated password parameter string to the entity transfer mapping before passing it down via `PatientFeignClient.createPatient()`.
+     * Cleanly return the redirection string `redirect:/portal/patients` to direct the operator back to the primary data grid ledger layout.
+
+2. TARGET PATH: src/main/java/com/smarthospital/webportal/controller/DoctorRegistrationWebController.java
+   - Full Java controller handling creation form targets, annotated with `@Controller` and `@RequestMapping("/portal/doctors")`.
+   - Inject `DoctorFeignClient` and the `PasswordEncoder` instances via constructor injection.
+   - Update the POST `/register` logic to intercept inbound registrations, apply the secure password encoding loop (`"Welcome@2026"`), assign it to the model transfer payload, pass it downstream to the microservice, and redirect cleanly to `redirect:/portal/doctors`.
+
+3. TARGET PATH: src/main/java/com/smarthospital/webportal/WebPortalApplicationTests.java
+   - Full integration test validation class located under `src/test/java/com/smarthospital/webportal/`.
+   - Annotate with `@SpringBootTest` and active test profile parameters.
+   - Provide explicit, complete test harness execution logic blocks:
+     * `contextLoads()`: Asserts that the entire Spring context configuration pipeline initializes completely without runtime compilation or bean instantiation exceptions.
+     * `verifySecurityBeanMappings()`: Verify that the security filter configuration chains, user principal factories, and custom authentication mapping processors register seamlessly without mapping conflicts.
+     * `verifyClientConnectivityStubs()`: Smoke test validation logic using mock invocations ensuring that OpenFeign interfaces align with all DTO data changes without breaking structure layers.
+
+Generate only raw, compilation-ready, 100% complete Java code strings grouped cleanly by their explicit path indicators. Do not skip any brackets, logical components, or validation assertions, and do not include conversational introductions.
