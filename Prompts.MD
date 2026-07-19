@@ -1131,32 +1131,24 @@ Please generate the following complete Java files, explicitly indicating their t
 
 Generate only raw, compilation-ready, 100% complete Java code strings grouped cleanly by their explicit path indicators. Do not skip any structural code lines or annotations, and do not include conversational introduction summaries.
 
-Prompt 2:
+Sonnet 3.5 Switch Context Ingestion
 
-Act as a Principal Enterprise Java Architect. Generate a 100% complete, compilation-ready Java controller patch for the 'Web Portal' module (`web-portal`) under the package `com.smarthospital.webportal`. This patch implements the dynamic authentication routing context that intercepts user landing pathways, extracts their microservice database IDs from the custom security principal, and cleanly handles isolated cross-service data bindings. Do not use code omissions, placeholders, or ellipses (...).
+Prompt 2A:
 
-Please generate the following complete Java files, explicitly indicating their target path destinations:
+Act as a Principal Enterprise Java Architect. Generate a 100% complete, compilation-ready Java controller class for the 'Web Portal' module (`web-portal`) under the package `com.smarthospital.webportal.controller`. This controller implements the dynamic post-login authentication routing context that intercepts user landing pathways and extracts their microservice database IDs from the custom security principal. Do not use code omissions, placeholders, or ellipses (...).
 
-1. TARGET PATH: src/main/java/com/smarthospital/webportal/controller/PortalSecurityController.java
-   - Full Java controller class annotated with `@Controller`.
-   - Update the GET mapping for `/portal/home` to parse the security context dynamically:
-     * Inject an `org.springframework.security.core.Authentication` instance into the method parameters.
-     * Cast the `authentication.getPrincipal()` to our custom `com.smarthospital.webportal.security.PortalPrincipal` object.
-     * Extract the user's role via `principal.getRole()` and their specific backend primary key via `principal.getDatabaseId()`.
-     * If the role matches `ROLE_ADMIN`, return `redirect:/portal/admin/dashboard`.
-     * If the role matches `ROLE_DOCTOR`, return a clean redirect string pointing directly to their specific clinical roster: `redirect:/portal/doctors/view/` + principal.getDatabaseId().
-     * If the role matches `ROLE_PATIENT`, return a clean redirect string pointing directly to their personal medical portal tracking hub: `redirect:/portal/patients/my-profile/` + principal.getDatabaseId().
-     * Provide a robust fallback redirecting straight to `/login?error` if authorization parameters fail to resolve.
+Please generate the following complete Java file, explicitly indicating its target path destination:
 
-2. TARGET PATH: src/main/java/com/smarthospital/webportal/controller/PatientDashboardController.java
-   - Full Java controller class handling isolated patient-facing layouts, annotated with `@Controller` and `@RequestMapping("/portal/patients/my-profile")`.
-   - Inject `PatientFeignClient`, `AppointmentFeignClient`, and `BillingFeignClient` via constructor dependency injection.
-   - Map a GET request to `/{id}` where `{id}` represents the dynamic patient primary key.
-   - Inside the method handler, use the incoming `id` parameter to run targeted microservice calls:
-     * Query the `PatientFeignClient.findById(id)` to populate the patient's personal biodata profile information.
-     * Query the `AppointmentFeignClient.findByPatientId(id)` to aggregate only their personal history of scheduled clinical appointments.
-     * Query the `BillingFeignClient.findByPatientId(id)` to collect only their outstanding ledger balance sheets and invoices.
-   - Push all specific microservice response objects into the Spring UI `Model` context map.
-   - Return the explicit server-side Thymeleaf view target string layout: `"patients/my_profile"`.
+TARGET PATH: src/main/java/com/smarthospital/webportal/controller/PortalSecurityController.java
+- Full Java controller class annotated with `@Controller`.
+- Map a GET request to `/login` to return the view template layout `"security/login"`.
+- Map a GET request to `/portal/home` to handle dynamic role routing:
+  * Inject an `org.springframework.security.core.Authentication` instance into the method parameters.
+  * Cast the `authentication.getPrincipal()` to our custom `com.smarthospital.webportal.security.PortalPrincipal` object.
+  * Extract the user's role via `principal.getRole()` and their specific backend primary key via `principal.getDatabaseId()`.
+  * If the role matches `ROLE_ADMIN`, return the server-side redirect string: `redirect:/portal/admin/dashboard`.
+  * If the role matches `ROLE_DOCTOR`, return a clean redirect string pointing directly to their specific clinical roster: `redirect:/portal/doctors/view/` + principal.getDatabaseId().
+  * If the role matches `ROLE_PATIENT`, return a clean redirect string pointing directly to their personal medical portal tracking hub: `redirect:/portal/patients/my-profile/` + principal.getDatabaseId().
+  * Provide a robust fallback redirecting straight to `/login?error` if authorization parameters fail to resolve.
 
-Generate only raw, compilation-ready, 100% complete Java code strings grouped cleanly by their explicit path indicators. Do not skip any line of logic, return parameters, or try-catch error blocks, and do not include conversational introductions.
+Generate only raw, compilation-ready, 100% complete Java code. Do not skip any brackets, logic lines, or import statements, and do not include conversational introductions.
