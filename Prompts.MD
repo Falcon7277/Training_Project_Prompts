@@ -1174,3 +1174,28 @@ TARGET PATH: src/main/java/com/smarthospital/webportal/controller/PatientDashboa
 - Return the explicit server-side Thymeleaf view layout target string: `"patients/my_profile"`.
 
 Generate only raw, compilation-ready, 100% complete Java code. Do not skip any import statements, variables, mapping annotations, or constructor arguments, and do not include conversational introductions.
+
+Prompt 3:
+
+Act as a Principal Full-Stack Engineer and UI/UX Architect. Generate a zero-manual-intervention, 100% complete, and compilation-ready UI Template patch for the 'Web Portal' module (`web-portal`) using HTML5, Thymeleaf, and Bootstrap 5 styles. This patch updates the shared navbar layout to support true role-shielding and builds a secure, dedicated patient hub view. Strictly prohibit any JavaScript or client-side scripting.
+
+Please generate the following complete layout files, explicitly indicating their target path destinations:
+
+1. TARGET PATH: src/main/resources/templates/fragments/navigation.html
+   - Full, un-truncated Thymeleaf navbar template matching `th:fragment="navbar"`.
+   - Brand logo "Smart Hospital Admin" text must change dynamically: render "Smart Hospital Patient Hub" if the logged-in user possesses `ROLE_PATIENT`, and "Smart Hospital Admin" otherwise using `sec:authorize`.
+   - Update navigation anchors with precise role restrictions:
+     * Wrap 'Overview/Dashboard' in `sec:authorize="hasRole('ADMIN')"` linking to `/portal/admin/dashboard`.
+     * Wrap 'Patients' and 'Doctors' lists in `sec:authorize="hasAnyRole('ADMIN','DOCTOR')"` linking to `/portal/patients` and `/portal/doctors`.
+     * Add a personalized 'My Health Hub' link wrapped in `sec:authorize="hasRole('PATIENT')"` linking directly to `/portal/home`.
+   - Display the logged-in principal identity username via `<span sec:authentication="name"></span>`.
+   - Maintain the scriptless `<form th:action="@{/logout}" method="POST" class="d-inline">` containing a single submit button labeled "Logout".
+
+2. TARGET PATH: src/main/resources/templates/patients/my_profile.html
+   - Complete, un-truncated HTML5 personal patient layout template using Bootstrap 5 utility styles. Zero Javascript allowed.
+   - Inject the updated navigation header wrapper using `<div th:replace="~{fragments/navigation :: navbar}"></div>`.
+   - Patient Profile Header Card: Display the active patient's details bound via Thymeleaf expressions matching `${patient.firstName}` and `${patient.lastName}`, alongside their email and emergency contact fields.
+   - Core Appointment Loads Grid: Render a table mapping out the `${appointments}` array. Standard data columns display Appointment ID, Doctor Name, Date & Time, and Status with Bootstrap contextual badge alerts (e.g., info for scheduled, danger for cancelled). Include a fallback `<p th:if="${#lists.isEmpty(appointments)}">No appointment history found.</p>`.
+   - Personal Financial Balances Ledger Table: Render a data table mapping out the `${invoices}` array. Standard data columns display Invoice ID, Due Date, Total Amount, Paid Amount, and Status with text classes. Include a fallback `<p th:if="${#lists.isEmpty(invoices)}">No invoice statements logged.</p>`.
+
+Generate only raw, production-ready, un-truncated HTML code files grouped by their explicit target path directives. Do not skip any line of layout tags, tables, or structural brackets, and do not include conversational introduction summaries.
