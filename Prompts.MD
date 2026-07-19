@@ -1095,3 +1095,38 @@ Please generate the complete source code for the following updated Java classes 
    - Update the top "Back to Ledger" hyperlink and the bottom form "Cancel" button layout anchor to both map cleanly to: `th:href="@{/portal/billing}"`.
 
 Generate only raw, production-grade, un-truncated file outputs structured by their explicit path directives. Do not skip any line of code or structural configuration tags, and do not include conversational introductions.
+
+Identity Mamangement Patch:
+
+Prompt 1:
+
+Act as a Principal Enterprise Java Security Architect. Generate a 100% complete, compilation-ready custom UserDetailsService and identity mapping framework for our 'Web Portal' module (`web-portal`) under the package `com.smarthospital.webportal`. This layer replaces all previous in-memory user stubs by dynamically looking up credentials and user records across our distributed backend microservices via OpenFeign. Do not use code omissions, placeholders, or ellipses (...).
+
+Please generate the following complete Java files, explicitly indicating their target path destinations:
+
+1. TARGET PATH: src/main/java/com/smarthospital/webportal/security/PortalPrincipal.java
+   - Full Java class implementing `org.springframework.security.core.userdetails.UserDetails`.
+   - Fields to map the logged-in session context: `private String email`, `private String password`, `private Long databaseId`, and `private String role`.
+   - Provide a full constructor initializing these parameters.
+   - Implement all required interface contracts:
+     * `getAuthorities()`: Return a collection containing a single `SimpleGrantedAuthority` initialized with the `role` string.
+     * `getPassword()`: Return the password string.
+     * `getUsername()`: Return the email string.
+     * Implement `isAccountNonExpired()`, `isAccountNonLocked()`, `isCredentialsNonExpired()`, and `isEnabled()` to all return `true`.
+   - Add a custom getter `public Long getDatabaseId()` so downstream controllers can instantly determine which specific Patient or Doctor ID belongs to this authenticated user.
+
+2. TARGET PATH: src/main/java/com/smarthospital/webportal/security/IdentityMappingUserDetailsService.java
+   - Full service class implementing `org.springframework.security.core.userdetails.UserDetailsService` annotated with `@Service`.
+   - Inject `PatientFeignClient` and `DoctorFeignClient` via constructor dependency injection.
+   - Define a static fallback administrative check: if the username matches "admin@smarthospital.com", return a complete `PortalPrincipal` initialized with a pre-hashed BCrypt password for "adminpassword", a databaseId of 0L, and the role "ROLE_ADMIN".
+   - Override `loadUserByUsername(String username)`:
+     * First, execute a try-catch block calling the `DoctorFeignClient.findByEmail(username)`. If an active doctor record is found, extract their password hash, their primary key ID, and return a new `PortalPrincipal` built with the role "ROLE_DOCTOR".
+     * If the doctor lookup fails or returns empty, execute a second block calling `PatientFeignClient.findByEmail(username)`. If a patient record matches, extract their password hash, their primary key ID, and return a new `PortalPrincipal` built with the role "ROLE_PATIENT".
+     * If neither client returns a record, throw a standard `UsernameNotFoundException("User identity not found in microservice registry: " + username)`.
+
+3. TARGET PATH: src/main/java/com/smarthospital/webportal/config/SecurityConfig.java
+   - Provide the updated complete structural class wire-up.
+   - Wire your new `IdentityMappingUserDetailsService` as the primary AuthenticationProvider bean context.
+   - Maintain the standard `BCryptPasswordEncoder` bean configuration and the `SecurityFilterChain` route parameters mapping out role paths.
+
+Generate only raw, compilation-ready, 100% complete Java code strings grouped cleanly by their explicit path indicators. Do not skip any structural code lines or annotations, and do not include conversational introduction summaries.
