@@ -28,3 +28,25 @@ Please generate the following complete Java files, explicitly indicating their t
      * Handle exceptions gracefully by returning a fallback `ExtractedMedicalProfileRecord` with default "Not Specified" values if parsing fails.
 
 Generate only raw, compilation-ready, 100% complete Java code strings grouped cleanly by their explicit path indicators. Do not skip any imports, constructor parameters, or try-catch cleanup blocks, and do not include conversational introductions.
+
+Prompt 2
+
+Act as a Principal Enterprise Java Architect. Generate a 100% complete, compilation-ready Spring MVC Web Controller for the 'Web Portal' module (`web-portal`) under the package `com.smarthospital.webportal.ai.controller`. This controller processes clinical document PDF uploads, triggers the Spring AI document parsing pipeline, maps extracted clinical parameters to the patient's medical profile, and updates the backend 'patient-service' via OpenFeign. Do not use code omissions, placeholders, or ellipses (...).
+
+Please generate the complete source code for the following Java file, explicitly indicating its target path destination:
+
+TARGET PATH: src/main/java/com/smarthospital/webportal/ai/controller/ClinicalDocumentUploadController.java
+- Full Java controller class annotated with `@Controller` and `@RequestMapping("/portal/patients")`.
+- Inject the following components via constructor dependency injection:
+  * `com.smarthospital.webportal.ai.service.ClinicalDocumentParserService`
+  * `com.smarthospital.webportal.client.PatientFeignClient`
+- Map a POST request handler to `/{patientId}/upload-clinical-doc`:
+  * Method parameters: `@PathVariable("patientId") Long patientId`, `@RequestParam("file") org.springframework.web.multipart.MultipartFile file`, and `org.springframework.web.servlet.mvc.support.RedirectAttributes redirectAttributes`.
+  * Validate that the uploaded file is not empty and has a `.pdf` extension/content type. If invalid, add a flash error attribute ("error", "Please upload a valid PDF document.") and redirect back to `redirect:/portal/patients/my-profile/` + patientId (or `redirect:/portal/patients/view/` + patientId depending on caller).
+  * Invoke `clinicalDocumentParserService.parseClinicalPdf(file)` to receive the `ExtractedMedicalProfileRecord`.
+  * Map the extracted fields (`bloodGroup`, `allergies`, `chronicConditions`, `currentMedications`) into the medical profile update transfer object expected by `PatientFeignClient`.
+  * Call `patientFeignClient` to update the patient's medical profile for the given `patientId`.
+  * Add a success flash attribute ("message", "Medical profile successfully updated from uploaded document.") and redirect cleanly to `redirect:/portal/patients/my-profile/` + patientId.
+  * Wrap in a robust try-catch block: catch any exception during extraction or Feign communication, set a descriptive flash error attribute ("error", "Failed to parse document or update medical profile: " + e.getMessage()), and redirect safely back to the patient profile page.
+
+Generate only raw, compilation-ready, 100% complete Java code. Do not skip any imports, class annotations, or error handling blocks, and do not include conversational introductions.
